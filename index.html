@@ -112,7 +112,7 @@
                         <forma-error default="Произошла ошибка! Попробуйте отправить форму ещё раз позднее!"></forma-error>
                     </p>
                 </div>
-                <form action="/forma.php" method="post">
+                <form action="/forma.php" method="post" data-secret="imnotarobot!">
                     <input type="text" name="name" required placeholder="Введите имя" />
                     <input type="tel" name="phone" required placeholder="Введите телефон" />
                     <input type="file" name="files[]" placeholder="Файлы для прикрепления" multiple />

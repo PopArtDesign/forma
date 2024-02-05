@@ -156,3 +156,22 @@ customElements.define('forma-form', class extends HTMLElement {
         return response
     }
 })
+
+document.addEventListener('submit', (event) => {
+    const form = event.target
+    if (!form.hasAttribute('data-secret')) {
+        return
+    }
+
+    const secret = form.getAttribute('data-secret')
+
+    let input = form['_secret']
+    if (!input) {
+        input = document.createElement('input')
+        input.name = '_secret'
+        input.type = 'hidden'
+        form.append(input);
+    }
+
+    input.value = secret
+}, { capture: true })

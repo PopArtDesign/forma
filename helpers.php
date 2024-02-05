@@ -5,6 +5,11 @@ namespace PopArtDesign\Forma;
 const CRLF = "\r\n";
 const MAX_LINE_LENGTH = 76;
 
+function getRequest($key, $default = null)
+{
+    return \trim($_REQUEST[$key] ?? $default);
+}
+
 /**
  * @see https://github.com/omniti-labs/jsend?tab=readme-ov-file#success
  */

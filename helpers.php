@@ -43,12 +43,27 @@ function jsendError($message = 'An error occurred. Please try again later!')
     ]));
 }
 
+function loadTemplate($filename, $params = [])
+{
+    if (!\is_file($filename)) {
+        return false;
+    }
+
+    \extract($params);
+
+    \ob_start();
+
+    include $filename;
+
+    return \ob_get_clean();
+}
+
 function detectDomain()
 {
     return \function_exists('idn_to_utf8') ? idn_to_utf8($_SERVER['SERVER_NAME']) : $_SERVER['SERVER_NAME'];
 }
 
-function uploadedFilesToAttachments($keys)
+function collectAttachments($keys)
 {
     $attachments = [];
 
@@ -58,7 +73,7 @@ function uploadedFilesToAttachments($keys)
         }
 
         $name = $_FILES[$key]['name'];
-        if (is_array($name)) {
+        if (\is_array($name)) {
             for ($i = 0; $i < count($name); $i++) {
                 $path = $_FILES[$key]['tmp_name'][$i];
                 if (\is_uploaded_file($path)) {
@@ -66,6 +81,7 @@ function uploadedFilesToAttachments($keys)
                         'path' => $path,
                         'name' => $_FILES[$key]['name'][$i],
                         'type' => $_FILES[$key]['type'][$i],
+                        'size' => $_FILES[$key]['size'][$i],
                     ];
                 }
             }
@@ -76,6 +92,7 @@ function uploadedFilesToAttachments($keys)
                     'path' => $path,
                     'name' => $name,
                     'type' => $_FILES[$key]['type'],
+                    'size' => $_FILES[$key]['size'],
                 ];
             }
         }
@@ -100,7 +117,11 @@ function sendMail($to, $subject, $message, $options = [])
         $boundary = generateMailBoundary();
         $headers[] = 'Content-Type: multipart/form-data; boundary=' . $boundary;
         $msg = "--$boundary" . CRLF;
-        $msg .= 'Content-Type: text/plain; charset=UTF-8' . CRLF;
+        if ($options['html']) {
+            $msg .= 'Content-Type: text/html; charset=UTF-8' . CRLF;
+        } else {
+            $msg .= 'Content-Type: text/plain; charset=UTF-8' . CRLF;
+        }
         $msg .= 'Content-Transfer-Encoding: base64' . CRLF . CRLF;
         $msg .= encodeMailContent($message) . CRLF;
 
@@ -118,8 +139,13 @@ function sendMail($to, $subject, $message, $options = [])
 
         $msg .= '--' . $boundary . '--';
     } else {
-        $headers[] = 'Content-Type: text/plain; charset=UTF-8';
-        $msg = $message;
+        if ($options['html']) {
+            $headers[] = 'Content-Type: text/html; charset=UTF-8';
+        } else {
+            $headers[] = 'Content-Type: text/plain; charset=UTF-8';
+        }
+        $headers[] = 'Content-Transfer-Encoding: base64';
+        $msg = encodeMailContent($message);
     }
 
     return \mail($to, $subject, $msg, implode(CRLF, $headers));

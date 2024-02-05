@@ -4,31 +4,37 @@ namespace PopArtDesign\Forma;
 
 use function preg_replace;
 
-require 'helpers.php';
+require __DIR__ . '/helpers.php';
 
 if ('imnotarobot!' !== getRequest('_secret')) {
-    jsendFail([ 'message' => 'Secret value is invalid!' ]);
+    jsendFail(['message' => 'Некорректное значение антиспам-поля!']);
 }
 
 $name  = getRequest('name');
 $phone = preg_replace('/[^+0-9]/', '', getRequest('phone'));
 
 if (!$name || !$phone) {
-    jsendFail([ 'message' => 'Please fill out all required fields' ]);
+    jsendFail(['message' => 'Пожалуйста, заполните все обязательные поля!']);
 }
 
-$attachments = uploadedFilesToAttachments(['files']);
+$attachments = collectAttachments(['files']);
 
 $domain = detectDomain();
 
 $to      = 'user@localhost';
 $from    = 'no-reply@' . $domain;
-$subject = 'Call me from '. $domain;
-$message = "Name: $name, phone: $phone";
+$subject = 'Сообщение с сайта '. $domain;
+
+$message = loadTemplate(__DIR__ . '/email.php', [
+    'name' => $name,
+    'phone' => $phone,
+]);
+
 $options = [
     'from' => $from,
     'sender' => $from,
     'attachments' => $attachments,
+    'html' => true,
 ];
 
 if (sendMail($to, $subject, $message, $options)) {

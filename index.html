@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Forma demo page</title>
+        <style>
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.call-me-header {
+    text-align: center;
+}
+
+.call-me {
+    padding: 1em;
+    font-size: 16px;
+    background: #eee;
+    border-radius: 3px;
+}
+
+.call-me header {
+    text-align: center;
+}
+
+.call-me input {
+    box-sizing: border-box;
+    font-size: 1.2em;
+    padding: 0.5em;
+    margin: 0.5em 0;
+    display: block;
+    width: 100%;
+    border: 1px solid #cddad0;
+    border-radius: 0.2em;
+}
+
+.call-me input[type=submit] {
+    border: none;
+    margin-left: auto;
+    margin-right: auto;
+    background: #336600;
+    color: #fff;
+    text-align: center;
+}
+
+.call-me input[type=submit]:hover {
+    cursor: pointer;
+    background: #5c8f48;
+}
+
+.call-me .forma-messages {
+    text-align: center;
+}
+
+.call-me .forma-messages .forma-message-fail {
+    color: red;
+}
+
+.call-me footer {
+    margin: 1em 0 0 0;
+    color: #a9a9a9;
+    font-size: 0.8em;
+    text-align: center;
+}
+        </style>
+        <script defer src="js/forma.js"></script>
+    </head>
+    <body>
+        <div class="container">
+           <h2 class="call-me-header">Заказать звонок</h2>
+           <!--
+               Для использования плагина необходимо к элементу,
+               содержащему форму, добавить атрибут data-forma
+           -->
+           <div
+                id="call-me"
+                class="call-me"
+                data-forma
+                data-forma-success="Спасибо! Мы свяжемся с вами в ближайшее время!"
+                data-forma-fail="Произошла ошибка! Проверьте данные и попробуйте отправить форму ещё раз!"
+                data-forma-error="Произошла ошибка! Попробуйте отправить форму ещё раз позднее!"
+            >
+                <header>
+                    Оставьте заявку и с Вами свяжется наш менеджер
+                </header>
+                <form action="/forma.php" method="post">
+                    <input type="text" name="name" required placeholder="Введите имя" />
+                    <input type="tel" name="phone" required placeholder="Введите телефон" />
+                    <input type="file" name="files[]" placeholder="Файлы для прикрепления" multiple />
+
+                    <input type="submit" value="Оставить заявку" />
+                </form>
+                <!-- Контейнер для сообщений -->
+                <div class="forma-messages"></div>
+                <footer>
+                    Ваши данные не будут переданы третьим лицам
+                </footer>
+            </div>
+        </div>
+    </body>
+</html>

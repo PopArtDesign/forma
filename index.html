@@ -58,23 +58,31 @@
     background: #5c8f48;
 }
 
-.call-me button[type="submit"] .loader {
-    display: none
-}
-
-.call-me.forma-submitting button[type="submit"] .loader {
-    display: inline-block;
-}
-
-.call-me.forma-submitting button[type="submit"] .submit-text {
+.call-me .call-me-submit-loading {
     display: none;
 }
 
-.call-me .forma-messages {
+.call-me forma-form[state="submit"] form {
+    opacity: 0.5;
+}
+
+.call-me forma-form[state="submit"] .call-me-submit-text {
+    display: none;
+}
+
+.call-me forma-form[state="submit"] .call-me-submit-loading {
+    display: initial;
+}
+
+.call-me .call-me-messages {
     text-align: center;
 }
 
-.call-me .forma-messages .forma-message-fail {
+.call-me .call-me-messages .call-me-success {
+    color: green;
+}
+
+.call-me .call-me-messages .call-me-error {
     color: red;
 }
 
@@ -84,63 +92,41 @@
     font-size: 0.8em;
     text-align: center;
 }
-
-/* https://cssloaders.github.io/ */
-.loader {
-    width: 1em;
-    height: 1em;
-    border: 3px solid #FFF;
-    border-bottom-color: transparent;
-    border-radius: 50%;
-    display: inline-block;
-    animation: rotation 1s linear infinite;
-}
-
-@keyframes rotation {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
 </style>
         <script defer src="js/forma.js"></script>
     </head>
     <body>
-        <div class="container">
+        <div class="container call-me">
            <h2 class="call-me-header">Заказать звонок</h2>
-           <!--
-               Для использования плагина необходимо к элементу,
-               содержащему форму, добавить атрибут data-forma
-           -->
-           <div
-                id="call-me"
-                class="call-me"
-                data-forma
-                data-forma-success="Спасибо! Мы свяжемся с вами в ближайшее время!"
-                data-forma-fail="Произошла ошибка! Проверьте данные и попробуйте отправить форму ещё раз!"
-                data-forma-error="Произошла ошибка! Попробуйте отправить форму ещё раз позднее!"
-            >
+           <forma-form>
                 <header>
                     Оставьте заявку и с Вами свяжется наш менеджер
                 </header>
+                <!-- Контейнер для сообщений -->
+                <div class="call-me-messages">
+                    <p class="call-me-success">
+                        <forma-success default="Спасибо! Мы свяжемся с вами в ближайшее время!"><forma-success>
+                    </p>
+                    <p class="call-me-error">
+                        <forma-fail default="Произошла ошибка! Проверьте данные и попробуйте отправить форму ещё раз!"></forma-fail>
+                        <forma-error default="Произошла ошибка! Попробуйте отправить форму ещё раз позднее!"></forma-error>
+                    </p>
+                </div>
                 <form action="/forma.php" method="post">
                     <input type="text" name="name" required placeholder="Введите имя" />
                     <input type="tel" name="phone" required placeholder="Введите телефон" />
                     <input type="file" name="files[]" placeholder="Файлы для прикрепления" multiple />
 
                     <button type="submit">
-                        <span class="loader"></span>
-                        <span class="submit-text">Оставить Заявку</span>
+                        <span class="call-me-submit-text">Оставить Заявку</span>
+                        <span class="call-me-submit-loading">Отправка...</span>
                     </button>
+
                 </form>
-                <!-- Контейнер для сообщений -->
-                <div class="forma-messages"></div>
                 <footer>
                     Ваши данные не будут переданы третьим лицам
                 </footer>
-            </div>
+            </forma-form>
         </div>
     </body>
 </html>

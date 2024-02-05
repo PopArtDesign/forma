@@ -1,44 +1,136 @@
-(function(window, document) {
-    function getOptions(element) {
-        return {
-            successMessage: element.getAttribute('data-forma-success') || 'Form was send successfully!',
-            failMessage: element.getAttribute('data-forma-fail') || 'Invalid entries found. Please correct and submit again!',
-            errorMessage: element.getAttribute('data-forma-error') || 'An error has occurred, please try again later!',
-        }
+customElements.define('forma-form', class extends HTMLElement {
+    get state() {
+        return this.getAttribute('state') || 'initial'
     }
 
-    function showMessage(element, type, message) {
-        const messages = element.querySelector('.forma-messages')
-        if (!messages || !message) {
+    set state(value) {
+        if (!['initial', 'submit', 'success', 'fail', 'error'].includes(value)) {
+            throw Error('Forma: invalid state: ' . value)
+        }
+
+        this.setAttribute('state', value)
+    }
+
+    constructor() {
+        super()
+
+        this.form = this.querySelector('form')
+        if (!this.form) {
+            throw Error('Forma: <form> element not found.')
+        }
+
+        this.successMessage = this.querySelector('forma-success')
+        this.failMessage = this.querySelector('forma-fail')
+        this.errorMessage = this.querySelector('forma-error')
+
+        this.state = 'initial'
+    }
+
+    connectedCallback() {
+        this.form.addEventListener('submit', this.submitHandler)
+    }
+
+    disconnectedCallback() {
+        this.form.removeEventListener('submit', this.submitHandler)
+    }
+
+    isSubmitting() {
+        return this.state === 'submit'
+    }
+
+    disableForm() {
+        this.form.inert = true
+    }
+
+    enableForm() {
+        this.form.inert = false
+    }
+
+    reset() {
+        this.form.reset()
+    }
+
+    showMessage(type, message) {
+        this.clearMessages()
+
+        const element = this[`${type}Message`]
+        if (!element) {
             return false
         }
 
-        messages.innerText = ''
-        messages.insertAdjacentHTML(
-            'afterbegin',
-            `<p class="forma-message forma-message-${type}">${message}</p>`
-        );
-    }
-
-    function success(element, message) {
-        element.classList.remove('forma-fail')
-        element.classList.add('forma-success')
-
-        if (message) {
-            showMessage(element, 'success', message)
+        message = message || element.getAttribute('default')
+        if (!message) {
+            return false
         }
+
+        element.innerText = message
+        return true
     }
 
-    function fail(element, message) {
-        element.classList.remove('forma-success')
-        element.classList.add('forma-fail');
+    showSuccessMessage(message) {
+        return this.showMessage('success', message)
+    }
 
-        if (message) {
-            showMessage(element, 'fail', message)
+    showFailMessage(message) {
+        return this.showMessage('fail', message)
+    }
+
+    showErrorMessage(message) {
+        return this.showMessage('error', message)
+    }
+
+    clearMessages() {
+        this.successMessage.innerText = ''
+        this.failMessage.innerText = ''
+        this.errorMessage.innerText = ''
+    }
+
+    submitHandler = (event) => {
+        event.preventDefault()
+
+        if (this.isSubmitting()) {
+            return
         }
+
+        this.state = 'submit'
+        this.disableForm()
+
+        const action = this.form.getAttribute('action')
+        const method = this.form.getAttribute('method') || 'post'
+        const body = new FormData(this.form)
+
+        fetch(action, { method, body })
+            .then(response => response.json())
+            .then(this.validateJSend)
+            .then(response => {
+                switch (response.status) {
+                    case 'success':
+                        this.state = 'success'
+                        this.showSuccessMessage(response.data?.message)
+                        this.reset()
+                        break;
+                    case 'fail':
+                        this.state = 'fail'
+                        this.showFailMessage(response.data?.message)
+                        break;
+                    case 'error':
+                        this.state = 'error'
+                        throw Error('Forma: JSend: ' + response.message)
+                        break;
+                }
+            })
+            .catch(error => {
+                this.state = 'error'
+                this.showErrorMessage()
+
+                throw error
+            })
+            .finally(() => {
+                this.enableForm()
+            })
     }
 
-    function validateJSend(response) {
+    validateJSend = (response) => {
         const status = response.status
 
         if (status === undefined) {
@@ -63,72 +155,4 @@
 
         return response
     }
-
-    const submitting = Symbol('Forma Submitting')
-
-    function isSubmitting(element) {
-        return element[submitting] || false
-    }
-
-    function disableFormWhileSubmitting(element, form) {
-        element.classList.add('forma-submitting')
-        element[submitting] = true
-        form.inert = true
-    }
-
-    function enableFormAfterSubmit(element, form) {
-        element.classList.remove('forma-submitting')
-        delete element[submitting]
-        form.inert = false
-    }
-
-    document.addEventListener('submit', (e) => {
-        const element = e.target.closest('[data-forma]')
-        if (!element) {
-            return
-        }
-
-        e.preventDefault();
-
-        const form = element.querySelector('form');
-        if (!form) {
-            throw Error('Forma: <form> element not found.')
-        }
-
-        if (isSubmitting(form)) {
-            return
-        }
-
-        disableFormWhileSubmitting(element, form)
-
-        const options = getOptions(element)
-
-        fetch(options.action || form.getAttribute('action'), {
-            method: form.getAttribute('method') || 'post',
-            body: new FormData(form),
-        })
-            .then(response => response.json())
-            .then(validateJSend)
-            .then(response => {
-                switch (response.status) {
-                    case 'success':
-                        success(element, response.data?.message || options.successMessage)
-                        form.reset()
-                        break;
-                    case 'fail':
-                        fail(element, response.data?.message || options.failMessage)
-                        break;
-                    case 'error':
-                        throw Error('Forma: JSend: ' + response.message)
-                        break;
-                }
-            })
-            .catch((err) => {
-                console.log(err)
-                fail(element, options.errorMessage)
-            })
-            .finally(() => {
-                enableFormAfterSubmit(element, form)
-            })
-    })
-}(window, window.document));
+})

@@ -64,6 +64,24 @@
         return response
     }
 
+    const submitting = Symbol('Forma Submitting')
+
+    function isSubmitting(element) {
+        return element[submitting] || false
+    }
+
+    function disableFormWhileSubmitting(element, form) {
+        element.classList.add('forma-submitting')
+        element[submitting] = true
+        form.inert = true
+    }
+
+    function enableFormAfterSubmit(element, form) {
+        element.classList.remove('forma-submitting')
+        delete element[submitting]
+        form.inert = false
+    }
+
     document.addEventListener('submit', (e) => {
         const element = e.target.closest('[data-forma]')
         if (!element) {
@@ -76,6 +94,12 @@
         if (!form) {
             throw Error('Forma: <form> element not found.')
         }
+
+        if (isSubmitting(form)) {
+            return
+        }
+
+        disableFormWhileSubmitting(element, form)
 
         const options = getOptions(element)
 
@@ -102,6 +126,9 @@
             .catch((err) => {
                 console.log(err)
                 fail(element, options.errorMessage)
+            })
+            .finally(() => {
+                enableFormAfterSubmit(element, form)
             })
     })
 }(window, window.document));

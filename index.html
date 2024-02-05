@@ -4,7 +4,11 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
         <title>Forma demo page</title>
-        <style>
+<style>
+* {
+    box-sizing: border-box;
+}
+
 .container {
     max-width: 400px;
     margin: 0 auto;
@@ -26,7 +30,6 @@
 }
 
 .call-me input {
-    box-sizing: border-box;
     font-size: 1.2em;
     padding: 0.5em;
     margin: 0.5em 0;
@@ -36,18 +39,35 @@
     border-radius: 0.2em;
 }
 
-.call-me input[type=submit] {
+.call-me button[type="submit"] {
+    font-size: 1.2em;
+    margin: 0.5em auto;
+    padding: 0.5em;
+    display: block;
+    width: 100%;
+    border: 1px solid #cddad0;
+    border-radius: 0.2em;
     border: none;
-    margin-left: auto;
-    margin-right: auto;
     background: #336600;
     color: #fff;
     text-align: center;
 }
 
-.call-me input[type=submit]:hover {
+.call-me button[type="submit"]:hover {
     cursor: pointer;
     background: #5c8f48;
+}
+
+.call-me button[type="submit"] .loader {
+    display: none
+}
+
+.call-me.forma-submitting button[type="submit"] .loader {
+    display: inline-block;
+}
+
+.call-me.forma-submitting button[type="submit"] .submit-text {
+    display: none;
 }
 
 .call-me .forma-messages {
@@ -64,7 +84,27 @@
     font-size: 0.8em;
     text-align: center;
 }
-        </style>
+
+/* https://cssloaders.github.io/ */
+.loader {
+    width: 1em;
+    height: 1em;
+    border: 3px solid #FFF;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+</style>
         <script defer src="js/forma.js"></script>
     </head>
     <body>
@@ -90,7 +130,10 @@
                     <input type="tel" name="phone" required placeholder="Введите телефон" />
                     <input type="file" name="files[]" placeholder="Файлы для прикрепления" multiple />
 
-                    <input type="submit" value="Оставить заявку" />
+                    <button type="submit">
+                        <span class="loader"></span>
+                        <span class="submit-text">Оставить Заявку</span>
+                    </button>
                 </form>
                 <!-- Контейнер для сообщений -->
                 <div class="forma-messages"></div>

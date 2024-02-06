@@ -12,12 +12,11 @@ if ('imnotarobot!' !== getRequest('_secret')) {
 
 $name  = getRequest('name');
 $phone = preg_replace('/[^+0-9]/', '', getRequest('phone'));
+$attachments = collectAttachments(['files']);
 
-if (!$name || !$phone) {
+if (!$name || !$phone || count($attachments) == 0) {
     jsendFail(['message' => 'Пожалуйста, заполните все обязательные поля!']);
 }
-
-$attachments = collectAttachments(['files']);
 
 $domain = detectDomain();
 

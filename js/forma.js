@@ -95,13 +95,7 @@ customElements.define('forma-form', class extends HTMLElement {
         this.state = 'submit'
         this.disableForm()
 
-        const action = this.form.getAttribute('action')
-        const method = this.form.getAttribute('method') || 'post'
-        const body = new FormData(this.form)
-
-        fetch(action, { method, body })
-            .then(response => response.json())
-            .then(this.validateJSend)
+        this.submitForm(this.form)
             .then(response => {
                 switch (response.status) {
                     case 'success':
@@ -130,32 +124,42 @@ customElements.define('forma-form', class extends HTMLElement {
             })
     }
 
-    validateJSend = (response) => {
-        const status = response.status
+    submitForm(form) {
+        const action = form.getAttribute('action')
+        const method = form.getAttribute('method') || 'post'
+        const body = new FormData(form)
 
-        if (status === undefined) {
-            throw Error('Forma: JSend: status field is not present')
-        }
-
-        if (!status) {
-            throw Error('Forma: JSend: status field is empty')
-        }
-
-        if (!['success', 'fail', 'error'].includes(status)) {
-            throw Error('Forma: JSend: invalid status: ' + status)
-        }
-
-        if ((status === 'success' || status === 'fail') && response.data === undefined) {
-            throw Error('Forma: JSend: data field is not present')
-        }
-
-        if (status === 'error' && response.message === undefined) {
-            throw Error('Forma: JSend: message field is not present')
-        }
-
-        return response
+        return fetch(action, { method, body })
+            .then(response => response.json())
+            .then(validateJSend)
     }
 })
+
+function validateJSend(response) {
+    const status = response.status
+
+    if (status === undefined) {
+        throw Error('Forma: JSend: status field is not present')
+    }
+
+    if (!status) {
+        throw Error('Forma: JSend: status field is empty')
+    }
+
+    if (!['success', 'fail', 'error'].includes(status)) {
+        throw Error('Forma: JSend: invalid status: ' + status)
+    }
+
+    if ((status === 'success' || status === 'fail') && response.data === undefined) {
+        throw Error('Forma: JSend: data field is not present')
+    }
+
+    if (status === 'error' && response.message === undefined) {
+        throw Error('Forma: JSend: message field is not present')
+    }
+
+    return response
+}
 
 document.addEventListener('submit', (event) => {
     const form = event.target

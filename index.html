@@ -93,6 +93,8 @@
     text-align: center;
 }
 </style>
+        <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
+        <script defer src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
         <script defer src="js/forma.js"></script>
     </head>
     <body>
@@ -115,7 +117,7 @@
                 <form action="/forma.php" method="post" data-secret="imnotarobot!">
                     <input type="text" name="name" required placeholder="Введите имя" />
                     <input type="tel" name="phone" required placeholder="Введите телефон" />
-                    <input type="file" name="files[]" placeholder="Файлы для прикрепления" multiple />
+                    <input type="file" name="files[]" placeholder="Файлы для прикрепления" multiple data-filepond />
 
                     <button type="submit">
                         <span class="call-me-submit-text">Оставить Заявку</span>
@@ -128,5 +130,33 @@
                 </footer>
             </forma-form>
         </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = document.querySelectorAll('input[type="file"][data-filepond]');
+
+            inputs.forEach(input => {
+                const form = input.form
+
+                const labelIdle = input.dataset.labelIdle || input.placeholder ||
+                    'Перетащите файлы сюда или <span class="filepond--label-action">Выбрать</span>'
+
+                const pond = FilePond.create(input, {
+                    storeAsFile: true,
+                    labelIdle,
+                    labelFileSizeBytes: 'байт',
+                    labelFileSizeKilobytes: 'Кб',
+                    labelFileSizeMegabytes: 'Мб',
+                    labelFileSizeGigabytes: 'Гб',
+                    credits: null
+                })
+
+                if (form) {
+                    form.addEventListener('reset', event => {
+                        pond.removeFiles()
+                    })
+                }
+            })
+        })
+        </script>
     </body>
 </html>

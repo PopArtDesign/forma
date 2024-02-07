@@ -1,0 +1,6 @@
+{
+    "name": "popartdesign/forma",
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    }
+}

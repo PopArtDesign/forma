@@ -10,7 +10,7 @@
    <script src="js/forma.min.js"></script>
    ```
 
-3. Обернуть форму в элемент `<forma-form>` 
+3. Обернуть форму в элемент `<forma-form>`. Атрибут `target` формы должен содержать адрес файла [forma.php](forma.php)
 
    ```html
    <forma-form>
@@ -70,6 +70,14 @@
 </forma-form>
 ```
 
+## Конфигурация
+
+После установки поведение формы можно изменить в следующих файлах:
+
+ - [config.php](config.php): файл с основной конфигурацией
+ - [forma.php](forma.php): обработчик формы
+ - [email.php](email.php): шаблон письма
+
 ## Состояния
 
 Элемент `<forma-form>` может находиться в нескольких состояниях:
@@ -121,3 +129,9 @@ forma-form[state="submit"] [type="submit"] {
        Отправить
     </button>
     ```
+
+5. В файле [config.php](config.php) указать секретный ключ:
+
+   ```php
+   define('RECAPTCHA_SECRET', 'SECRET_KEY');
+   ```

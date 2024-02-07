@@ -13,5 +13,5 @@ if (!defined('NOROBOT_VALUE') || !NOROBOT_VALUE) {
 }
 
 if (getRequest(NOROBOT_KEY) !== NOROBOT_VALUE) {
-    jsendFail(['message' => 'Некорректное значение антиспам-поля!']);
+    jsendFail([ 'message' => 'Некорректное значение антиспам-поля!' ]);
 }

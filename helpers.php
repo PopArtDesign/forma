@@ -110,3 +110,33 @@ function calculateAttachmentsSize($attachments)
 
     return $total;
 }
+
+function verifyRecaptcha($token, $secret)
+{
+    $data = \http_build_query([
+        'secret' => $secret,
+        'response' => $token,
+    ]);
+
+    $ch = \curl_init(RECAPTCHA_VERIFY_URL);
+    \curl_setopt($ch, \CURLOPT_POST, 1);
+    \curl_setopt($ch, \CURLOPT_POSTFIELDS, $data);
+    \curl_setopt($ch, \CURLOPT_RETURNTRANSFER, 1);
+    \curl_setopt($ch, \CURLOPT_SSL_VERIFYPEER, 0);
+    \curl_setopt($ch, \CURLOPT_HTTPAUTH, \CURLAUTH_BASIC);
+    \curl_setopt($ch, \CURLOPT_CONNECTTIMEOUT, 5);
+    \curl_setopt($ch, \CURLOPT_TIMEOUT, 5);
+    \curl_setopt($ch, \CURLOPT_HTTPHEADER, [
+        'Accept: application/json',
+        'Content-type: application/x-www-form-urlencoded'
+    ]);
+
+    $response = \curl_exec($ch);
+    \curl_close($ch);
+
+    if (!$response) {
+        return null;
+    }
+
+    return \json_decode($response, true);
+}

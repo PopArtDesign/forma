@@ -7,6 +7,7 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/helpers.php';
 
 require_once __DIR__ . '/norobot.php';
+require_once __DIR__ . '/recaptcha.php';
 
 $name  = getRequest('name');
 $phone = getRequest('phone');

@@ -163,16 +163,16 @@ function validateJSend(response) {
 
 document.addEventListener('submit', (event) => {
     const form = event.target
-    if (!form.hasAttribute('data-secret')) {
+
+    const secret = form.dataset.imnotarobot
+    if (!secret) {
         return
     }
 
-    const secret = form.getAttribute('data-secret')
-
-    let input = form['_secret']
+    let input = form['imnotarobot']
     if (!input) {
         input = document.createElement('input')
-        input.name = '_secret'
+        input.name = 'imnotarobot'
         input.type = 'hidden'
         form.append(input);
     }

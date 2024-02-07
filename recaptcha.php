@@ -4,11 +4,11 @@ namespace PopArtDesign\Forma;
 
 require_once __DIR__ . '/helpers.php';
 
-if (!defined('RECAPTCHA_KEY') || !RECAPTCHA_KEY) {
+if (!\defined('RECAPTCHA_KEY') || !RECAPTCHA_KEY) {
     return;
 }
 
-if (!defined('RECAPTCHA_SECRET') || !RECAPTCHA_SECRET) {
+if (!\defined('RECAPTCHA_SECRET') || !RECAPTCHA_SECRET) {
     return;
 }
 

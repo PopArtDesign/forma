@@ -5,7 +5,7 @@ namespace PopArtDesign\Forma;
 use PHPMailer\PHPMailer\DSNConfigurator;
 use PHPMailer\PHPMailer\PHPMailer;
 
-if (!defined('MAILER_DSN') || !MAILER_DSN) {
+if (!\defined('MAILER_DSN') || !MAILER_DSN) {
     return;
 }
 

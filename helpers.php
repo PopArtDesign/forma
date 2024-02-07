@@ -58,7 +58,7 @@ function loadTemplate($filename, $params = [])
     return \ob_get_clean();
 }
 
-function detectDomain()
+function getSiteName()
 {
     return \function_exists('idn_to_utf8') ? idn_to_utf8($_SERVER['SERVER_NAME']) : $_SERVER['SERVER_NAME'];
 }
@@ -99,4 +99,14 @@ function collectAttachments($keys)
     }
 
     return $attachments;
+}
+
+function calculateAttachmentsSize($attachments)
+{
+    $total = 0;
+    foreach ($attachments as $attachment) {
+        $total =+ $attachment['size'];
+    }
+
+    return $total;
 }

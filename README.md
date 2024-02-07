@@ -97,6 +97,14 @@ forma-form[state="submit"] [type="submit"] {
 }
 ```
 
+## I'm not a Robot
+
+В простейшем случае для защиты от роботов, можно добавлять в форму специальное поле при помощи JavaScript:
+
+```html
+<form action="/forma.php" method="post" data-imnotarobot="imnotarobot!">
+```
+
 ## reCAPTCHA v3
 
 1. Создать капчу в [консоли администратора](https://www.google.com/recaptcha/admin/create)

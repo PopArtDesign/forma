@@ -88,3 +88,36 @@ forma-form[state="submit"] [type="submit"] {
     display: none;
 }
 ```
+
+## reCAPTCHA v3
+
+1. Создать капчу в [консоли администратора](https://www.google.com/recaptcha/admin/create)
+
+2. Подключить скрипт:
+
+   ```html
+   <script src="https://www.google.com/recaptcha/api.js"></script>
+   ```
+
+3. Добавить к форме идентификатор (например, `id="myForm"`)
+
+   ```html
+   <form id="myForm">
+   </form>
+   ```
+
+4. Изменить кнопку отправки, указав ключ для капчи и корректный идентификатор формы:
+
+   ```html
+   <button
+       type="submit"
+       class="g-recaptcha"
+       data-sitekey="КЛЮЧ ДЛЯ КАПЧИ"
+       data-action="submit"
+       data-callback="submitMyForm"
+    >
+       <script>function submitMyForm(token) { document.forms['myForm'].requestSubmit() }</script>
+
+       Отправить
+    </button>
+    ```

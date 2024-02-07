@@ -2,13 +2,15 @@
 
 ## Установка
 
-1. Подключить файл [forma.min.js](https://raw.githubusercontent.com/PopArtDesign/forma/main/js/forma.min.js)
+1. Скачать и распаковать [последнюю версию](https://github.com/PopArtDesign/forma/archive/refs/heads/main.zip)
+
+2. Подключить файл [forma.min.js](https://raw.githubusercontent.com/PopArtDesign/forma/main/js/forma.min.js)
 
    ```html
    <script src="js/forma.min.js"></script>
    ```
 
-2. Обернуть форму в элемент `<forma-form>` 
+3. Обернуть форму в элемент `<forma-form>` 
 
    ```html
    <forma-form>
@@ -17,7 +19,7 @@
    </forma-form>
    ```
 
-3. Добавить элементы для вывода сообщений:
+4. Добавить элементы для вывода сообщений:
 
    #### Сообщение об успешной отправке:
 

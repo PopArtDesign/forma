@@ -140,7 +140,7 @@ function imnotarobot()
         return;
     }
 
-    $field = getConfig('IMNOTAROBOT_FIELD');
+    $field = getConfig('IMNOTAROBOT_FIELD', 'imnotarobot');
     if (getRequest($field) !== $value) {
         jsendFail([ 'message' => 'Некорректное значение антиспам-поля!' ]);
     }

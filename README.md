@@ -99,10 +99,16 @@ forma-form[state="submit"] [type="submit"] {
 
 ## I'm not a Robot
 
-В простейшем случае для защиты от роботов, можно добавлять в форму специальное поле при помощи JavaScript:
+В простейшем случае, для защиты от роботов можно добавлять в форму специальное поле при помощи JavaScript:
 
 ```html
 <form action="/forma.php" method="post" data-imnotarobot="imnotarobot!">
+```
+
+Значение поля нужно указать в [config.php](config.php):
+
+```php
+define('IMNOTAROBOT_VALUE', 'imnotarobot!');
 ```
 
 ## reCAPTCHA v3

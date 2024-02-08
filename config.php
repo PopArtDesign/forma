@@ -14,7 +14,7 @@ define('MAILER_HTML', true);
 
 define('ATTACHMENTS_MAX_SIZE', 10 * 1024 * 1024);
 
-define('IMNOTAROBOT_VALUE', 'imnotarobot!');
+define('IMNOTAROBOT_VALUE', '');
 define('IMNOTAROBOT_FIELD', 'imnotarobot');
 
 define('RECAPTCHA_SECRET', '');

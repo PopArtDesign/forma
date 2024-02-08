@@ -135,7 +135,7 @@ define('IMNOTAROBOT_VALUE', 'imnotarobot!');
        type="submit"
        class="g-recaptcha"
        data-sitekey="КЛЮЧ ДЛЯ КАПЧИ"
-       data-action="submit"
+       data-action="myForm"
        data-callback="submitMyForm"
     >
        <script>function submitMyForm(token) { document.forms['myForm'].requestSubmit() }</script>
@@ -148,4 +148,7 @@ define('IMNOTAROBOT_VALUE', 'imnotarobot!');
 
    ```php
    define('RECAPTCHA_SECRET', 'SECRET_KEY');
+
+   // Также полезно указать идентификатор действия (формы) из data-action
+   define('RECAPTCHA_ACTION', 'myForm');
    ```

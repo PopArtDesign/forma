@@ -211,7 +211,7 @@ function recaptcha()
 
     $options = [
         'timeout' => getConfig('RECAPTCHA_TIMEOUT', 30),
-        'ssl_verifypeer' => getConfig('RECAPTCHA_TIMEOUT', 30),
+        'ssl_verifypeer' => getConfig('RECAPTCHA_SSL_VERIFYPEER', true),
         'remoteip' => getRemoteIp(),
     ];
 
@@ -221,8 +221,13 @@ function recaptcha()
         jsendError('reCaptcha does not work');
     }
 
+    $hostname = getConfig('RECAPTCHA_HOSTNAME');
+    if ($hostname && $response['hostname'] !== $hostname) {
+        jsendFail([ 'message' => 'Не пройдена антиспам проверка!' ]);
+    }
+
     $action = getConfig('RECAPTCHA_ACTION');
-    if ($action && $response['action'] !== $recaptchaAction) {
+    if ($action && $response['action'] !== $action) {
         jsendFail([ 'message' => 'Не пройдена антиспам проверка!' ]);
     }
 

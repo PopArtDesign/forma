@@ -20,3 +20,4 @@ define('IMNOTAROBOT_FIELD', 'imnotarobot');
 define('RECAPTCHA_SECRET', '');
 define('RECAPTCHA_FIELD', 'g-recaptcha-response');
 define('RECAPTCHA_THRESHOLD', 0.5);
+define('RECAPTCHA_TIMEOUT', 30);

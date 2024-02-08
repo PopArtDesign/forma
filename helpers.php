@@ -5,11 +5,27 @@ namespace PopArtDesign\Forma;
 use PHPMailer\PHPMailer\DSNConfigurator;
 use PHPMailer\PHPMailer\PHPMailer;
 
+/**
+ * Возвращает значение из запроса.
+ *
+ * @param string $key     Ключ
+ * @param mixed  $default Значение по умолчанию
+ *
+ * @return mixed
+ */
 function getRequest($key, $default = null)
 {
     return \trim($_REQUEST[$key] ?? $default);
 }
 
+/**
+ * Возвращает значение из конфигурации.
+ *
+ * @param string $key     Ключ ('SITE_NAME', 'MAILER_DSN' и т.д.)
+ * @param mixed  $default Значение по умолчанию
+ *
+ * @return mixed
+ */
 function getConfig($key, $default = null)
 {
     if (!\defined($key)) {
@@ -20,7 +36,11 @@ function getConfig($key, $default = null)
 }
 
 /**
+ * Отправляет JSend SUCCESS-ответ и завершает работу приложения.
+ *
  * @see https://github.com/omniti-labs/jsend?tab=readme-ov-file#success
+ *
+ * @param array $data Массив данных для ответа
  */
 function jsendSuccess($data = null)
 {
@@ -63,11 +83,23 @@ function loadTemplate($filename, $params = [])
     return \ob_get_clean();
 }
 
+/**
+ * Определяет доменное имя текущего сайта.
+ *
+ * @return string
+ */
 function getSiteName()
 {
     return \function_exists('idn_to_utf8') ? idn_to_utf8($_SERVER['SERVER_NAME']) : $_SERVER['SERVER_NAME'];
 }
 
+/**
+ * Возвращает загруженные файлы вложений.
+ *
+ * @param array $keys Имена полей формы
+ *
+ * @return array
+ */
 function getAttachments($keys)
 {
     $attachments = collectAttachments($keys);
@@ -86,6 +118,13 @@ function getAttachments($keys)
     return $attachments;
 }
 
+/**
+ * Собирает загруженные файлы в массив вложений.
+ *
+ * @param array $keys Имена полей формы
+ *
+ * @return array
+ */
 function collectAttachments($keys)
 {
     $attachments = [];
@@ -124,6 +163,13 @@ function collectAttachments($keys)
     return $attachments;
 }
 
+/**
+ * Подсчитывает общий объём вложений в байтах.
+ *
+ * @param array $attachments Массив с вложениями
+ *
+ * @return int Количество байт
+ */
 function calculateAttachmentsSize($attachments)
 {
     $total = 0;
@@ -134,6 +180,9 @@ function calculateAttachmentsSize($attachments)
     return $total;
 }
 
+/**
+ * Проверяет поле "imnotarobot".
+ */
 function imnotarobot()
 {
     if (!$value = getConfig('IMNOTAROBOT_VALUE')) {
@@ -146,6 +195,9 @@ function imnotarobot()
     }
 }
 
+/**
+ * Проверяет reCaptcha.
+ */
 function recaptcha()
 {
     if (!$secret = getConfig('RECAPTCHA_SECRET')) {
@@ -156,6 +208,12 @@ function recaptcha()
     if (!$token = getRequest($field)) {
         jsendFail([ 'message' => 'Некорректное значение антиспам-поля!' ]);
     }
+
+    $options = [
+        'timeout' => getConfig('RECAPTCHA_TIMEOUT', 30),
+        'ssl_verifypeer' => getConfig('RECAPTCHA_TIMEOUT', 30),
+        'remoteip' => getRemoteIp(),
+    ];
 
     $response = recaptchaVerify($token, getConfig('RECAPTCHA_SECRET'));
 
@@ -175,26 +233,33 @@ function recaptcha()
 }
 
 /**
+ * Верифицирует токен reCaptcha.
+ *
  * @see https://developers.google.com/recaptcha/docs/verify
+ *
+ * @param string $token   Токен полученный от посетителя
+ * @param string $secret  Секретное значение
+ * @param array  $options Массив с доп. настройками
+ *
+ * @return array Результат проверки
  */
-function recaptchaVerify($token, $secret, $remoteIp = null)
+function recaptchaVerify($token, $secret, $options = [])
 {
     $data = [
         'secret' => $secret,
         'response' => $token,
     ];
 
-    if ($remoteIp) {
-        $data['remoteip'] = $remoteIp;
+    if ($options['remoteip'] ?? null) {
+        $data['remoteip'] = $options['remoteip'];
     }
 
     $ch = \curl_init('https://www.google.com/recaptcha/api/siteverify');
     \curl_setopt($ch, \CURLOPT_POST, true);
     \curl_setopt($ch, \CURLOPT_POSTFIELDS, \http_build_query($data));
     \curl_setopt($ch, \CURLOPT_RETURNTRANSFER, true);
-    \curl_setopt($ch, \CURLOPT_SSL_VERIFYPEER, false);
-    \curl_setopt($ch, \CURLOPT_CONNECTTIMEOUT, 10);
-    \curl_setopt($ch, \CURLOPT_TIMEOUT, 10);
+    \curl_setopt($ch, \CURLOPT_SSL_VERIFYPEER, $options['ssl_verifypeer'] ?? true);
+    \curl_setopt($ch, \CURLOPT_TIMEOUT, $options['timeout'] ?? 0);
     \curl_setopt($ch, \CURLOPT_HTTPHEADER, [
         'Accept: application/json',
         'Content-type: application/x-www-form-urlencoded'
@@ -210,6 +275,49 @@ function recaptchaVerify($token, $secret, $remoteIp = null)
     return \json_decode($response, true);
 }
 
+/**
+ * Возвращает IP-адрес посетителя.
+ *
+ * @see https://robert-michalski.com/blog/php-get-ip-of-request/
+ *
+ * @return string
+ */
+function getRemoteIp()
+{
+    $ipKeys = [
+        // Providers
+        'HTTP_CF_CONNECTING_IP',    // Cloudflare
+        'HTTP_INCAP_CLIENT_IP',     // Incapsula
+        'HTTP_X_CLUSTER_CLIENT_IP', // RackSpace
+        'HTTP_TRUE_CLIENT_IP',      // Akamai
+
+        // Proxies
+        'HTTP_X_FORWARDED_FOR',
+        'HTTP_X_FORWARDED',
+        'HTTP_CLIENT_IP',
+        'HTTP_X_REAL_IP',
+        'HTTP_FORWARDED',
+        'HTTP_FORWARDED_FOR',
+
+        // Fallback
+        'REMOTE_ADDR'
+    ];
+
+    foreach ($ipKeys as $key) {
+        if ($ip = $_SERVER[$key] ?? null) {
+            return $ip;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Отправляет письмо.
+ *
+ * @param string $message     Текст письма
+ * @param array  $attachments Массив с вложениями
+ */
 function sendMail($message, $attachments = [])
 {
     if (!$dsn = getConfig('MAILER_DSN')) {

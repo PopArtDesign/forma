@@ -29,20 +29,18 @@ function getRequest($key, $default = null)
 }
 
 /**
- * Возвращает значение из конфигурации.
+ * Возвращает значение конфигурации.
  *
- * @param string $key     Ключ ('SITE_NAME', 'MAILER_DSN' и т.д.)
+ * @param string $key     Ключ
  * @param mixed  $default Значение по умолчанию
  *
  * @return mixed
  */
 function getConfig($key, $default = null)
 {
-    if (!\defined($key)) {
-        return $default;
-    }
+    global $config;
 
-    return \constant($key) ?? $default;
+    return $config[$key] ?? $default;
 }
 
 /**
@@ -138,32 +136,7 @@ function loadTemplate($filename, $params = [])
  */
 function getSiteName()
 {
-    return \function_exists('idn_to_utf8') ? idn_to_utf8($_SERVER['SERVER_NAME']) : $_SERVER['SERVER_NAME'];
-}
-
-/**
- * Возвращает загруженные файлы вложений.
- *
- * @param array $keys Имена полей формы
- *
- * @return array
- */
-function getAttachments($keys)
-{
-    $attachments = collectAttachments($keys);
-
-    $mb = 1024 * 1024;
-    $maxSize = getConfig('ATTACHMENTS_MAX_SIZE', 10 * $mb);
-    $attachmentsSize = calculateAttachmentsSize($attachments);
-
-    if ($attachmentsSize > $maxSize) {
-        fail(\sprintf(
-            'Общий размер файлов не должен превышать %s Мб!',
-            $maxSize / $mb
-        ));
-    }
-
-    return $attachments;
+    return \function_exists('idn_to_utf8') ? \idn_to_utf8($_SERVER['SERVER_NAME']) : $_SERVER['SERVER_NAME'];
 }
 
 /**
@@ -233,11 +206,11 @@ function calculateAttachmentsSize($attachments)
  */
 function imnotarobot()
 {
-    if (!$value = getConfig('IMNOTAROBOT_VALUE')) {
+    if (!$value = getConfig('imnotarobot_value')) {
         return;
     }
 
-    $field = getConfig('IMNOTAROBOT_FIELD', 'imnotarobot');
+    $field = getConfig('imnotarobot_field', 'imnotarobot');
     if (getRequest($field) !== $value) {
         fail('Некорректное значение антиспам-поля!');
     }
@@ -248,38 +221,38 @@ function imnotarobot()
  */
 function recaptcha()
 {
-    if (!$secret = getConfig('RECAPTCHA_SECRET')) {
+    if (!$secret = getConfig('recaptcha_secret')) {
         return;
     }
 
-    $field = getConfig('RECAPTCHA_FIELD', 'g-recaptcha-response');
+    $field = getConfig('recaptcha_field', 'g-recaptcha-response');
     if (!$token = getRequest($field)) {
         fail('Некорректное значение антиспам-поля!');
     }
 
     $options = [
-        'timeout' => getConfig('RECAPTCHA_TIMEOUT', 30),
-        'ssl_verifypeer' => getConfig('RECAPTCHA_SSL_VERIFYPEER', true),
+        'timeout' => getConfig('recaptcha_timeout', 30),
+        'ssl_verifypeer' => getConfig('recaptcha_ssl_verifypeer', true),
         'remoteip' => getRemoteIp(),
     ];
 
-    $response = recaptchaVerify($token, getConfig('RECAPTCHA_SECRET'));
+    $response = recaptchaVerify($token, $secret);
 
     if (!($response['success'] ?? false)) {
         error('reCaptcha does not work');
     }
 
-    $hostname = getConfig('RECAPTCHA_HOSTNAME');
+    $hostname = getConfig('recaptcha_hostname', getConfig('site_name'));
     if ($hostname && $response['hostname'] !== $hostname) {
         fail('Не пройдена антиспам проверка!');
     }
 
-    $action = getConfig('RECAPTCHA_ACTION');
+    $action = getConfig('recaptcha_action');
     if ($action && $response['action'] !== $action) {
         fail('Не пройдена антиспам проверка!');
     }
 
-    $threshold = getConfig('RECAPTCHA_THRESHOLD', 0.5);
+    $threshold = getConfig('recaptcha_threshold', 0.5);
     if ($response['score'] < $threshold) {
         fail('Не пройдена антиспам проверка!');
     }
@@ -367,30 +340,41 @@ function getRemoteIp()
 
 /**
  * Отправляет письмо.
- *
- * @param string $message     Текст письма
- * @param array  $attachments Массив с вложениями
  */
-function sendMail($message, $attachments = [])
+function mail()
 {
-    if (!$dsn = getConfig('MAILER_DSN')) {
+    if (!$dsn = getConfig('mail_dsn')) {
         return;
     }
 
     try {
         $mail = DSNConfigurator::mailer($dsn, true);
 
-        $mail->Subject = getConfig('MAILER_SUBJECT');
-        $mail->setFrom(getConfig('MAILER_FROM'));
-        foreach (getConfig('MAILER_RECIPIENTS') as $recipient) {
+        $mail->Subject = getConfig('mail_subject');
+        $mail->setFrom(getConfig('mail_from'));
+        foreach (getConfig('mail_recipients') as $recipient) {
             $mail->addAddress($recipient);
         }
-        $mail->Body = $message;
+        $mail->Body = getConfig('mail_message');
         $mail->CharSet = PHPMailer::CHARSET_UTF8;
-        $mail->isHtml(getConfig('MAILER_HTML'));
+        $mail->isHtml(getConfig('mail_html', false));
 
-        foreach ($attachments as $attachment) {
-            $mail->addAttachment($attachment['path'], $attachment['name']);
+        $attachments = getConfig('mail_attachments', []);
+        if (\count($attachments) > 0) {
+            $mb = 1024 * 1024;
+            $maxSize = getConfig('mail_attachments_max_size', 10 * $mb);
+            $attachmentsSize = calculateAttachmentsSize($attachments);
+
+            if ($attachmentsSize > $maxSize) {
+                fail(\sprintf(
+                    'Общий размер файлов не должен превышать %s Мб!',
+                    $maxSize / $mb
+                ));
+            }
+
+            foreach ($attachments as $attachment) {
+                $mail->addAttachment($attachment['path'], $attachment['name']);
+            }
         }
 
         $mail->send();

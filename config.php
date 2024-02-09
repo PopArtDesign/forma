@@ -2,23 +2,24 @@
 
 namespace PopArtDesign\Forma;
 
-define('SITE_NAME', getSiteName());
+$config['site_name'] = getSiteName();
 
-define('MAILER_DSN', 'mail://localhost');
-define('MAILER_SUBJECT', 'Сообщение с сайта '. SITE_NAME);
-define('MAILER_FROM', 'no-reply@' . SITE_NAME);
-define('MAILER_RECIPIENTS', [ 'user@localhost.localhost' ]);
-define('MAILER_HTML', true);
+$config['mail_dsn'] = 'mail://localhost';
+$config['mail_subject'] = 'Сообщение с сайта ' . $config['site_name'];
+$config['mail_from'] = 'no-reply@' . $config['site_name'];
+$config['mail_recipients'] = [ 'user@localhost.localhost' ];
+$config['mail_message'] = 'Сообщение с сайта ' . $config['site_name'];
+$config['mail_html'] = true;
+$config['mail_attachments'] = [];
+$config['mail_attachments_max_size'] = 10 * 1024 * 1024;
 
-define('ATTACHMENTS_MAX_SIZE', 10 * 1024 * 1024);
+$config['imnotarobot_value'] = '';
+$config['imnotarobot_field'] = 'imnotarobot';
 
-define('IMNOTAROBOT_VALUE', '');
-define('IMNOTAROBOT_FIELD', 'imnotarobot');
-
-define('RECAPTCHA_SECRET', '');
-define('RECAPTCHA_ACTION', '');
-define('RECAPTCHA_HOSTNAME', SITE_NAME);
-define('RECAPTCHA_FIELD', 'g-recaptcha-response');
-define('RECAPTCHA_THRESHOLD', 0.5);
-define('RECAPTCHA_TIMEOUT', 30);
-define('RECAPTCHA_SSL_VERIFYPEER', true);
+$config['recaptcha_secret'] = '';
+$config['recaptcha_action'] = '';
+$config['recaptcha_hostname'] = $config['site_name'];
+$config['recaptcha_field'] = 'g-recaptcha-response';
+$config['recaptcha_threshold'] = 0.5;
+$config['recaptcha_timeout'] = 30;
+$config['recaptcha_ssl_verifypeer'] = true;

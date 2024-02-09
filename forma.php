@@ -3,8 +3,8 @@
 namespace PopArtDesign\Forma;
 
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/helpers.php';
 
 imnotarobot();
 recaptcha();

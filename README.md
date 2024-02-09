@@ -4,17 +4,21 @@
 
 1. Скачать и распаковать [последнюю версию](https://github.com/PopArtDesign/forma/archive/refs/heads/main.zip)
 
-2. Подключить файл [forma.min.js](https://raw.githubusercontent.com/PopArtDesign/forma/main/js/forma.min.js)
+2. Создать директорию с формой (например, `callme`).
+
+   В директории создать файл-обработчик формы: `handler.php` и шаблон письма `email.php` (необязательно).
+
+3. Подключить файл [forma.min.js](https://raw.githubusercontent.com/PopArtDesign/forma/main/js/forma.min.js)
 
    ```html
    <script src="js/forma.min.js"></script>
    ```
 
-3. Обернуть форму в элемент `<forma-form>`. Атрибут `target` формы должен содержать адрес файла [forma.php](forma.php)
+3. Обернуть форму в элемент `<forma-form>`. Атрибут `target` формы должен содержать адрес обработчика формы (например, `/forma/callme/handler.php`)
 
    ```html
    <forma-form>
-       <form action="/path/to/forma.php" method="post">
+       <form action="/forma/callme/handler.php" method="post">
        </form>
    </forma-form>
    ```
@@ -49,19 +53,19 @@
 ## Пример
 
 ```html
-<forma-form class="call-me">
+<forma-form class="callme">
     <h2>Заказать звонок</h2>
 
-    <div class="call-me-success">
+    <div class="callme-success">
         <forma-success default="Спасибо! Мы свяжемся с вами в ближайшее время!"><forma-success>
     </div>
 
-    <div class="call-me-erros">
+    <div class="callme-erros">
         <forma-fail default="Произошла ошибка! Проверьте данные и попробуйте отправить форму ещё раз!"></forma-fail>
         <forma-error default="Произошла ошибка! Попробуйте отправить форму ещё раз позднее!"></forma-error>
     </div>
 
-    <form action="/path/to/forma.php" method="post">
+    <form action="/forma/callme/handler.php" method="post">
         <input type="text" name="name" required placeholder="Введите имя" />
         <input type="tel" name="phone" required placeholder="Введите телефон" />
 
@@ -72,11 +76,17 @@
 
 ## Конфигурация
 
-После установки поведение формы можно изменить в следующих файлах:
+После установки поведение форм можно изменить в следующих файлах:
 
- - [config.php](config.php): файл с основной конфигурацией
- - [forma.php](forma.php): обработчик формы
- - [email.php](email.php): шаблон письма
+ - [config.php](config.php): файл с глобальной конфигурацией для всех форм
+
+ - в файле обработчика формы (`callme/handler.php` и т.д.):
+
+   ```php
+   require_once __DIR__ . '/../config.php';
+
+   $config['mail_subject'] = $config['site_name'] . ': заказать звонок';
+   ```
 
 ## Состояния
 
@@ -99,7 +109,7 @@ forma-form[state="submit"] [type="submit"] {
 
 ## I'm not a Robot
 
-В простейшем случае, для защиты от роботов можно добавлять в форму специальное поле при помощи JavaScript:
+В простейшем случае для защиты от роботов можно добавлять в форму специальное поле при помощи JavaScript:
 
 ```html
 <form action="/forma.php" method="post" data-imnotarobot="imnotarobot!">
@@ -108,7 +118,7 @@ forma-form[state="submit"] [type="submit"] {
 Значение поля нужно указать в [config.php](config.php):
 
 ```php
-define('IMNOTAROBOT_VALUE', 'imnotarobot!');
+$config['imnotarobot_value'] = 'imnotarobot!';
 ```
 
 ## reCAPTCHA v3
@@ -147,8 +157,9 @@ define('IMNOTAROBOT_VALUE', 'imnotarobot!');
 5. В файле [config.php](config.php) указать секретный ключ:
 
    ```php
-   define('RECAPTCHA_SECRET', 'SECRET_KEY');
+   $config['recaptcha_secret'] = 'SECRET KEY';
 
-   // Также полезно указать идентификатор действия (формы) из data-action
-   define('RECAPTCHA_ACTION', 'myForm');
+   // Также полезно указать идентификатор действия (формы)
+   // из data-action в файле-обработчике
+   $config['recaptcha_action'] = 'myForm';
    ```

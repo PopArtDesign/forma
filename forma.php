@@ -14,7 +14,7 @@ $phone = getRequest('phone');
 $attachments = getAttachments([ 'files' ]);
 
 if (!$name || !$phone || count($attachments) == 0) {
-    jsendFail([ 'message' => 'Правильно заполните все обязательные поля!' ]);
+    fail('Правильно заполните все обязательные поля!');
 }
 
 $message = loadTemplate(__DIR__ . '/email.php', [
@@ -24,4 +24,4 @@ $message = loadTemplate(__DIR__ . '/email.php', [
 
 sendMail($message, $attachments);
 
-jsendSuccess();
+success();

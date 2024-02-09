@@ -46,7 +46,37 @@ function getConfig($key, $default = null)
 }
 
 /**
- * Отправляет JSend SUCCESS-ответ и завершает работу приложения.
+ * Успешно завершает работу приложения.
+ *
+ * @param string $message Сообщение для отправки клиенту
+ */
+function success($message = null)
+{
+    jsendSuccess($message ? [ 'message' => $message ] : null);
+}
+
+/**
+ * Завершает работу приложения с ошибкой.
+ *
+ * @param string $message Сообщение для отправки клиенту
+ */
+function fail($message = 'Форма заполнена неправильно!')
+{
+    jsendFail([ 'message' => $message ]);
+}
+
+/**
+ * Завершает работу приложения с фатальной ошибкой.
+ *
+ * @param string $message Сообщение для отправки клиенту
+ */
+function error($message = null)
+{
+    jsendError($message);
+}
+
+/**
+ * Отправляет JSend success-ответ и завершает работу приложения.
  *
  * @see https://github.com/omniti-labs/jsend?tab=readme-ov-file#success
  *
@@ -61,7 +91,11 @@ function jsendSuccess($data = null)
 }
 
 /**
+ * Отправляет JSend fail-ответ и завершает работу приложения.
+ *
  * @see https://github.com/omniti-labs/jsend?tab=readme-ov-file#fail
+ *
+ * @param array $data Массив данных для ответа
  */
 function jsendFail($data = null)
 {
@@ -72,7 +106,11 @@ function jsendFail($data = null)
 }
 
 /**
+ * Отправляет JSend fail-ответ и завершает работу приложения.
+ *
  * @see https://github.com/omniti-labs/jsend?tab=readme-ov-file#error
+ *
+ * @param array $data Массив данных для ответа
  */
 function jsendError($message = 'An error occurred. Please try again later!')
 {
@@ -119,10 +157,10 @@ function getAttachments($keys)
     $attachmentsSize = calculateAttachmentsSize($attachments);
 
     if ($attachmentsSize > $maxSize) {
-        jsendFail([ 'message' => \sprintf(
+        fail(\sprintf(
             'Общий размер файлов не должен превышать %s Мб!',
             $maxSize / $mb
-        )]);
+        ));
     }
 
     return $attachments;
@@ -201,7 +239,7 @@ function imnotarobot()
 
     $field = getConfig('IMNOTAROBOT_FIELD', 'imnotarobot');
     if (getRequest($field) !== $value) {
-        jsendFail([ 'message' => 'Некорректное значение антиспам-поля!' ]);
+        fail('Некорректное значение антиспам-поля!');
     }
 }
 
@@ -216,7 +254,7 @@ function recaptcha()
 
     $field = getConfig('RECAPTCHA_FIELD', 'g-recaptcha-response');
     if (!$token = getRequest($field)) {
-        jsendFail([ 'message' => 'Некорректное значение антиспам-поля!' ]);
+        fail('Некорректное значение антиспам-поля!');
     }
 
     $options = [
@@ -228,22 +266,22 @@ function recaptcha()
     $response = recaptchaVerify($token, getConfig('RECAPTCHA_SECRET'));
 
     if (!($response['success'] ?? false)) {
-        jsendError('reCaptcha does not work');
+        error('reCaptcha does not work');
     }
 
     $hostname = getConfig('RECAPTCHA_HOSTNAME');
     if ($hostname && $response['hostname'] !== $hostname) {
-        jsendFail([ 'message' => 'Не пройдена антиспам проверка!' ]);
+        fail('Не пройдена антиспам проверка!');
     }
 
     $action = getConfig('RECAPTCHA_ACTION');
     if ($action && $response['action'] !== $action) {
-        jsendFail([ 'message' => 'Не пройдена антиспам проверка!' ]);
+        fail('Не пройдена антиспам проверка!');
     }
 
     $threshold = getConfig('RECAPTCHA_THRESHOLD', 0.5);
     if ($response['score'] < $threshold) {
-        jsendFail([ 'message' => 'Не пройдена антиспам проверка!' ]);
+        fail('Не пройдена антиспам проверка!');
     }
 }
 
@@ -357,6 +395,6 @@ function sendMail($message, $attachments = [])
 
         $mail->send();
     } catch (\Exception $e) {
-        jsendError("Can't send email");
+        error("Can't send email");
     }
 }

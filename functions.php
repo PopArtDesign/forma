@@ -82,6 +82,8 @@ function error($message = null)
  */
 function jsendSuccess($data = null)
 {
+    \header('Content-Type: application/json; charset=utf-8');
+
     die(\json_encode([
         'status' => 'success',
         'data' => $data,
@@ -97,6 +99,8 @@ function jsendSuccess($data = null)
  */
 function jsendFail($data = null)
 {
+    \header('Content-Type: application/json; charset=utf-8');
+
     die(\json_encode([
         'status' => 'fail',
         'data' => $data,
@@ -112,6 +116,8 @@ function jsendFail($data = null)
  */
 function jsendError($message = 'An error occurred. Please try again later!')
 {
+    \header('Content-Type: application/json; charset=utf-8');
+
     die(\json_encode([
         'status' => 'error',
         'message' => $message,

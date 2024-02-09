@@ -1,0 +1,7 @@
+.gitattributes export-ignore
+LICENSE export-ignore
+Makefile export-ignore
+README.md export-ignore
+composer.* export-ignore
+index.html export-ignore
+js/forma.js export-ignore

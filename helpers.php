@@ -15,7 +15,17 @@ use PHPMailer\PHPMailer\PHPMailer;
  */
 function getRequest($key, $default = null)
 {
-    return \trim($_REQUEST[$key] ?? $default);
+    $source = $_SERVER['REQUEST_METHOD'] === 'GET' ? $_GET : $_POST;
+
+    if (!isset($source[$key])) {
+        return $default;
+    }
+
+    if ('' === $value = \trim((string) $source[$key])) {
+        return $default;
+    }
+
+    return $value;
 }
 
 /**

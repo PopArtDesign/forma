@@ -83,7 +83,7 @@
  - в файле обработчика формы (`callme/handler.php` и т.д.):
 
    ```php
-   require_once __DIR__ . '/../config.php';
+   require_once __DIR__ . '/../forma.php';
 
    $config['mail_subject'] = $config['site_name'] . ': заказать звонок';
    ```

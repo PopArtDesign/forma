@@ -5,6 +5,9 @@ namespace PopArtDesign\Forma;
 use PHPMailer\PHPMailer\DSNConfigurator;
 use PHPMailer\PHPMailer\PHPMailer;
 
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/config.php';
+
 /**
  * Возвращает значение из запроса.
  *

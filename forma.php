@@ -289,19 +289,21 @@ function recaptchaVerify($token, $secret, $options = [])
         $data['remoteip'] = $options['remoteip'];
     }
 
-    $ch = \curl_init('https://www.google.com/recaptcha/api/siteverify');
-    \curl_setopt($ch, \CURLOPT_POST, true);
-    \curl_setopt($ch, \CURLOPT_POSTFIELDS, \http_build_query($data));
-    \curl_setopt($ch, \CURLOPT_RETURNTRANSFER, true);
-    \curl_setopt($ch, \CURLOPT_SSL_VERIFYPEER, $options['ssl_verifypeer'] ?? true);
-    \curl_setopt($ch, \CURLOPT_TIMEOUT, $options['timeout'] ?? 0);
-    \curl_setopt($ch, \CURLOPT_HTTPHEADER, [
-        'Accept: application/json',
-        'Content-type: application/x-www-form-urlencoded'
+    $curl = \curl_init('https://www.google.com/recaptcha/api/siteverify');
+    \curl_setopt_array($curl, [
+        \CURLOPT_POST => true,
+        \CURLOPT_POSTFIELDS => \http_build_query($data),
+        \CURLOPT_RETURNTRANSFER => true,
+        \CURLOPT_SSL_VERIFYPEER => $options['ssl_verifypeer'] ?? true,
+        \CURLOPT_TIMEOUT => $options['timeout'] ?? 0,
+        \CURLOPT_HTTPHEADER => [
+            'Accept: application/json',
+            'Content-type: application/x-www-form-urlencoded'
+        ]
     ]);
 
-    $response = \curl_exec($ch);
-    \curl_close($ch);
+    $response = \curl_exec($curl);
+    \curl_close($curl);
 
     if (!$response) {
         return null;

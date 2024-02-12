@@ -63,7 +63,7 @@ customElements.define('forma-form', class extends HTMLElement {
             return false
         }
 
-        element.innerText = message
+        element.innerHTML = message
         return true
     }
 

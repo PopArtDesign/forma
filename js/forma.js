@@ -5,7 +5,7 @@ customElements.define('forma-form', class extends HTMLElement {
 
     set state(value) {
         if (!['initial', 'submit', 'success', 'fail', 'error'].includes(value)) {
-            throw Error('Forma: invalid state: ' . value)
+            throw Error('Forma: invalid state: '.value)
         }
 
         this.setAttribute('state', value)
@@ -24,6 +24,11 @@ customElements.define('forma-form', class extends HTMLElement {
         this.errorMessage = this.querySelector('forma-error')
 
         this.state = 'initial'
+
+        this.dispatchEvent(new CustomEvent('forma:init', {
+            bubbles: true,
+            composed: true,
+        }))
     }
 
     connectedCallback() {
@@ -101,21 +106,34 @@ customElements.define('forma-form', class extends HTMLElement {
                     case 'success':
                         this.state = 'success'
                         this.showSuccessMessage(response.data?.message)
+                        this.dispatchEvent(new CustomEvent('forma:success', {
+                            bubbles: true,
+                            composed: true,
+                            detail: { response }
+                        }))
                         this.reset()
                         break;
                     case 'fail':
                         this.state = 'fail'
                         this.showFailMessage(response.data?.message)
+                        this.dispatchEvent(new CustomEvent('forma:fail', {
+                            bubbles: true,
+                            composed: true,
+                            detail: { response }
+                        }))
                         break;
                     case 'error':
-                        this.state = 'error'
                         throw Error('Forma: JSend: ' + response.message)
-                        break;
                 }
             })
             .catch(error => {
                 this.state = 'error'
                 this.showErrorMessage()
+                this.dispatchEvent(new CustomEvent('forma:error', {
+                    bubbles: true,
+                    composed: true,
+                    detail: { error }
+                }))
 
                 throw error
             })
@@ -127,9 +145,15 @@ customElements.define('forma-form', class extends HTMLElement {
     submitForm(form) {
         const action = form.getAttribute('action')
         const method = form.getAttribute('method') || 'post'
-        const body = new FormData(form)
+        const data = new FormData(form)
 
-        return fetch(action, { method, body })
+        this.dispatchEvent(new CustomEvent('forma:submit', {
+            bubbles: true,
+            composed: true,
+            detail: { form, data }
+        }))
+
+        return fetch(action, { method, body: data })
             .then(response => response.json())
             .then(validateJSend)
     }

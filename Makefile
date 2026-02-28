@@ -15,5 +15,8 @@ build: forma.zip
 .PHONY: test
 test:
 	curl -X POST -k \
-		-d 'name=John Doe&phone=+71234567890&forma_client_info={"url":"test","title":"test"}&forma_imnotarobot=imnotarobot!' \
+		-H 'Accept-Language: en,en-US;q=0.9' \
+		-d 'name=John Doe&phone=+71234567890' \
+		-d 'forma_client_info={"url":"test","title":"test"}' \
+		-d 'forma_imnotarobot=imnotarobot!' \
 		https://127.0.0.1:8000/test/handler.php

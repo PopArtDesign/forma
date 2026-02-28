@@ -4,5 +4,6 @@ LICENSE export-ignore
 Makefile export-ignore
 README.md export-ignore
 composer.* export-ignore
-index.html export-ignore
+index.php export-ignore
 js/forma.js export-ignore
+test/ export-ignore

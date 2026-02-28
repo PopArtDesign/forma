@@ -105,7 +105,7 @@
     <body>
         <div class="container call-me">
            <h2 class="call-me-header">Заказать звонок</h2>
-           <forma-form imnotarobot="imnotarobot!!">
+           <forma-form imnotarobot="imnotarobot!">
                 <header>
                     Оставьте заявку и с Вами свяжется наш менеджер
                 </header>
@@ -119,7 +119,7 @@
                         <forma-error default="Произошла ошибка! Попробуйте отправить форму ещё раз позднее!"></forma-error>
                     </p>
                 </div>
-                <form action="/callme/handler.php" method="post">
+                <form action="/test/handler.php" method="post">
                     <input type="text" name="name" required placeholder="Введите имя" />
                     <input type="tel" name="phone" required placeholder="Введите телефон" />
                     <input type="file" name="files[]" placeholder="Файлы для прикрепления" multiple data-filepond />

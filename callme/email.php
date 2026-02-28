@@ -11,3 +11,7 @@
         <td><?php echo \htmlspecialchars($phone); ?></td>
     </tr>
 </table>
+
+<h4>Техническая информация</h4>
+
+<?php \PopArtDesign\Forma\clientInfo(); ?>

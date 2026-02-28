@@ -14,3 +14,7 @@
         <td colspan="2"><?php echo \htmlspecialchars($message); ?></td>
     </tr>
 </table>
+
+<h4>Техническая информация</h4>
+
+<?php \PopArtDesign\Forma\clientInfo(); ?>

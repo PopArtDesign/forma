@@ -204,7 +204,7 @@ function calculateAttachmentsSize($attachments)
 {
     $total = 0;
     foreach ($attachments as $attachment) {
-        $total =+ $attachment['size'];
+        $total = + $attachment['size'];
     }
 
     return $total;
@@ -392,4 +392,33 @@ function mail()
     } catch (\Exception $e) {
         error("Can't send email");
     }
+}
+
+/**
+ * Возвращает информацию об отправителе: URL, title и т.д.
+ *
+ * @return array
+ */
+function getClientInfo()
+{
+    return \json_decode(getRequest('forma_client_info', '{}'), true) ?? [];
+}
+
+/**
+ * Выводит HTML-таблицу с информацией об отправителе.
+ */
+function clientInfo()
+{
+    $data = getClientInfo();
+
+    echo '<table><tbody>';
+    $tr = '<tr><td><strong>%s:<strong>&nbsp;&nbsp</td><td>%s</td></tr>';
+    printf($tr, 'IP-адрес', getRemoteIp());
+    printf($tr, 'URL', \htmlspecialchars($data['url'] ?? ''));
+    printf($tr, 'Заголовок', \htmlspecialchars($data['title'] ?? ''));
+    printf($tr, 'Время', \htmlspecialchars($data['timestamp'] ?? ''));
+    printf($tr, 'Часовой пояс', \htmlspecialchars($data['timezone'] ?? ''));
+    printf($tr, 'Язык', \htmlspecialchars($data['language'] ?? ''));
+    printf($tr, 'Браузер', \htmlspecialchars($data['userAgent'] ?? ''));
+    echo '</table></tbody>';
 }

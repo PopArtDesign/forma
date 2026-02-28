@@ -25,6 +25,8 @@ customElements.define('forma-form', class extends HTMLElement {
 
         this.state = 'initial'
 
+        this.addEventListener('forma:submit', this.addClientInfo)
+
         this.dispatchEvent(new CustomEvent('forma:init', {
             bubbles: true,
             composed: true,
@@ -156,6 +158,17 @@ customElements.define('forma-form', class extends HTMLElement {
         return fetch(action, { method, body: data })
             .then(response => response.json())
             .then(validateJSend)
+    }
+
+    addClientInfo = (event) => {
+        event.detail.data.append('forma_client_info', JSON.stringify({
+            url: window.location.href,
+            title: document.title,
+            timestamp: (new Date()).toISOString(),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            language: navigator.language,
+            userAgent: navigator.userAgent,
+        }))
     }
 })
 

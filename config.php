@@ -13,8 +13,8 @@ $config['mail_html'] = true;
 $config['mail_attachments'] = [];
 $config['mail_attachments_max_size'] = 10 * 1024 * 1024;
 
-$config['imnotarobot_value'] = '';
-$config['imnotarobot_field'] = 'imnotarobot';
+$config['imnotarobot_value'] = 'imnotarobot!';
+$config['imnotarobot_field'] = 'forma_imnotarobot';
 
 $config['recaptcha_secret'] = '';
 $config['recaptcha_action'] = '';

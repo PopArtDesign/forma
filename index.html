@@ -96,11 +96,16 @@
         <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
         <script defer src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
         <script defer src="js/forma.js"></script>
+        <script>
+        document.addEventListener('forma:submit', (e) => {
+            console.log(e);
+        })
+        </script>
     </head>
     <body>
         <div class="container call-me">
            <h2 class="call-me-header">Заказать звонок</h2>
-           <forma-form>
+           <forma-form imnotarobot="imnotarobot!!">
                 <header>
                     Оставьте заявку и с Вами свяжется наш менеджер
                 </header>
@@ -114,7 +119,7 @@
                         <forma-error default="Произошла ошибка! Попробуйте отправить форму ещё раз позднее!"></forma-error>
                     </p>
                 </div>
-                <form action="/forma.php" method="post" data-secret="imnotarobot!">
+                <form action="/callme/handler.php" method="post">
                     <input type="text" name="name" required placeholder="Введите имя" />
                     <input type="tel" name="phone" required placeholder="Введите телефон" />
                     <input type="file" name="files[]" placeholder="Файлы для прикрепления" multiple data-filepond />

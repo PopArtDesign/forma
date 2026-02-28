@@ -53,7 +53,7 @@
 ## Пример
 
 ```html
-<forma-form class="callme">
+<forma-form class="callme" imnotarobot="imnotarobot!">
     <h2>Заказать звонок</h2>
 
     <div class="callme-success">
@@ -98,7 +98,7 @@
 - `fail` - ошибка, которую можно исправить
 - `error` - фатальная ошибка
 
-Информация о состоянии доступна через атрибут `state`. Это можно использовать для настройки внешнего вида формы через CSS: 
+Информация о состоянии доступна через атрибут `state`. Это можно использовать для настройки внешнего вида формы через CSS:
 
 ```css
 /** Сокрытие кнопки во время отправки формы */
@@ -112,7 +112,7 @@ forma-form[state="submit"] [type="submit"] {
 В простейшем случае для защиты от роботов можно добавлять в форму специальное поле при помощи JavaScript:
 
 ```html
-<form action="/forma.php" method="post" data-imnotarobot="imnotarobot!">
+<forma-form imnotarobot="imnotarobot!">
 ```
 
 Значение поля нужно указать в [config.php](config.php):

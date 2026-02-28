@@ -26,6 +26,7 @@ customElements.define('forma-form', class extends HTMLElement {
         this.state = 'initial'
 
         this.addEventListener('forma:submit', this.addClientInfo)
+        this.addEventListener('forma:submit', this.addImNotARobot)
 
         this.dispatchEvent(new CustomEvent('forma:init', {
             bubbles: true,
@@ -170,6 +171,14 @@ customElements.define('forma-form', class extends HTMLElement {
             userAgent: navigator.userAgent,
         }))
     }
+
+    addImNotARobot = (event) => {
+        const value = this.getAttribute('imnotarobot') || this.form.dataset.imnotarobot
+
+        if (value) {
+            event.detail.data.append('forma_imnotarobot', value)
+        }
+    }
 })
 
 function validateJSend(response) {
@@ -197,22 +206,3 @@ function validateJSend(response) {
 
     return response
 }
-
-document.addEventListener('submit', (event) => {
-    const form = event.target
-
-    const secret = form.dataset.imnotarobot
-    if (!secret) {
-        return
-    }
-
-    let input = form['imnotarobot']
-    if (!input) {
-        input = document.createElement('input')
-        input.name = 'imnotarobot'
-        input.type = 'hidden'
-        form.append(input);
-    }
-
-    input.value = secret
-}, { capture: true })

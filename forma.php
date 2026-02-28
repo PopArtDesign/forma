@@ -212,6 +212,8 @@ function calculateAttachmentsSize($attachments)
 
 /**
  * Проверяет поле "imnotarobot".
+ *
+ * @return void
  */
 function imnotarobot()
 {
@@ -227,6 +229,8 @@ function imnotarobot()
 
 /**
  * Проверяет reCaptcha.
+ *
+ * @return void
  */
 function recaptcha()
 {
@@ -351,6 +355,8 @@ function getRemoteIp()
 
 /**
  * Отправляет письмо.
+ *
+ * @return void
  */
 function mail()
 {
@@ -395,17 +401,30 @@ function mail()
 }
 
 /**
- * Возвращает информацию об отправителе: URL, title и т.д.
+ * Возвращает информацию об отправителе: IP-адрес URL, title и т.д.
  *
  * @return array
  */
 function getClientInfo()
 {
-    return \json_decode(getRequest('forma_client_info', '{}'), true) ?? [];
+    return \array_merge(
+        [
+            'ip' => getRemoteIp(),
+            'url' => $_SERVER['HTTP_REFERER'] ?? null,
+            'title' => null,
+            'timestamp' => null,
+            'timezone' => null,
+            'language' => \strtok($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', ',') ?: null,
+            'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+        ],
+        \json_decode(getRequest('forma_client_info', '{}'), true) ?? []
+    );
 }
 
 /**
  * Выводит HTML-таблицу с информацией об отправителе.
+ *
+ * @return void
  */
 function clientInfo()
 {
@@ -413,12 +432,12 @@ function clientInfo()
 
     echo '<table><tbody>';
     $tr = '<tr><td><strong>%s:<strong>&nbsp;&nbsp</td><td>%s</td></tr>';
-    printf($tr, 'IP-адрес', getRemoteIp());
-    printf($tr, 'URL', \htmlspecialchars($data['url'] ?? ''));
-    printf($tr, 'Заголовок', \htmlspecialchars($data['title'] ?? ''));
-    printf($tr, 'Время', \htmlspecialchars($data['timestamp'] ?? ''));
-    printf($tr, 'Часовой пояс', \htmlspecialchars($data['timezone'] ?? ''));
-    printf($tr, 'Язык', \htmlspecialchars($data['language'] ?? ''));
-    printf($tr, 'Браузер', \htmlspecialchars($data['userAgent'] ?? ''));
+    printf($tr, 'IP-адрес', $data['ip']);
+    printf($tr, 'URL', \htmlspecialchars($data['url'] ?? 'нет'));
+    printf($tr, 'Заголовок', \htmlspecialchars($data['title'] ?? 'нет'));
+    printf($tr, 'Время', \htmlspecialchars($data['timestamp'] ?? 'нет'));
+    printf($tr, 'Часовой пояс', \htmlspecialchars($data['timezone'] ?? 'нет'));
+    printf($tr, 'Язык', \htmlspecialchars($data['language'] ?? 'нет'));
+    printf($tr, 'Браузер', \htmlspecialchars($data['userAgent'] ?? 'нет'));
     echo '</table></tbody>';
 }

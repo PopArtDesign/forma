@@ -4,6 +4,8 @@ namespace PopArtDesign\Forma;
 
 use PHPMailer\PHPMailer\DSNConfigurator;
 use PHPMailer\PHPMailer\PHPMailer;
+use Rakit\Validation\Rules as Rule;
+use Rakit\Validation\Validator;
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/config.php';
@@ -24,11 +26,27 @@ function getRequest($key, $default = null)
         return $default;
     }
 
-    if ('' === $value = \trim((string) $source[$key])) {
-        return $default;
-    }
+    $value = \is_string($source[$key]) ? \trim($source[$key]) : $source[$key];
 
-    return $value;
+    return $value ?: $default;
+}
+
+/**
+ * Возвращает все значения из запроса.
+ *
+ * @return array
+ */
+function getRequestAll()
+{
+    $source = $_SERVER['REQUEST_METHOD'] === 'GET' ? $_GET : $_POST;
+
+    \array_walk_recursive($source, function (&$value) {
+        if (\is_string($value)) {
+            $value = \trim($value);
+        }
+    });
+
+    return $source;
 }
 
 /**
@@ -64,6 +82,16 @@ function success($message = null)
 function fail($message = 'Форма заполнена неправильно!')
 {
     jsendFail([ 'message' => $message ]);
+}
+
+/**
+ * Завершает работу приложения с ошибками валидации.
+ *
+ * @param array $errors Ошибки для отправки клиенту
+ */
+function invalid($errors)
+{
+    jsendFail([ 'errors' => $errors ]);
 }
 
 /**
@@ -440,4 +468,110 @@ function clientInfo()
     printf($tr, 'Язык', \htmlspecialchars($data['language'] ?? 'нет'));
     printf($tr, 'Браузер', \htmlspecialchars($data['userAgent'] ?? 'нет'));
     echo '</table></tbody>';
+}
+
+/**
+ * Валидация данных формы.
+ *
+ * @see https://github.com/rakit/validation
+ *
+ * @param array $rules Правила валидации
+ *
+ * @return array Валидные данные
+ */
+function validate($rules)
+{
+    $data = getRequestAll() + $_FILES;
+
+    $validation = getValidator()->validate($data, $rules);
+
+    if ($validation->fails()) {
+        invalid($validation->errors()->firstOfAll(':message', true));
+    }
+
+    return $validation->getValidData();
+}
+
+/**
+ * Возвращает валидатор.
+ *
+ * @see https://github.com/rakit/validation
+ *
+ * @return Validator
+ */
+function getValidator()
+{
+    global $config;
+
+    $messages = ($config['validation_messages'] ?? []) + [
+        'accepted' => 'Поле должно быть принято.',
+        'after' => 'Поле должно содержать дату после :time.',
+        'alpha' => 'Поле должно содержать только буквы.',
+        'alpha_dash' => 'Поле должно содержать только буквы, цифры, знаки тире и подчёркивания.',
+        'alpha_num' => 'Поле должно содержать только буквы и цифры.',
+        'alpha_spaces' => 'Поле должно содержать только буквы и пробелы.',
+        'array' => 'Поле должно быть массивом.',
+        'before' => 'Поле должно содержать дату до :time.',
+        'between' => 'Значение должно быть между :min и :max.',
+        'boolean' => 'Поле должно быть логического типа.',
+        'date' => 'Поле должно быть корректной датой.',
+        'different' => 'Поля должны различаться.',
+        'digits' => 'Поле должно быть числовым и иметь длину :digits.',
+        'digits_between' => 'Поле должно быть числовым и иметь длину между :min и :max.',
+        'email' => 'Поле должно содержать корректный email.',
+        'extension' => 'Файл должен иметь одно из следующих расширений: :extensions.',
+        'in' => 'Выбранное значение недопустимо.',
+        'integer' => 'Поле должно быть целым числом.',
+        'ip' => 'Поле должно быть корректным IP-адресом.',
+        'ipv4' => 'Поле должно быть корректным IPv4-адресом.',
+        'ipv6' => 'Поле должно быть корректным IPv6-адресом.',
+        'json' => 'Поле должно быть корректной строкой JSON.',
+        'lowercase' => 'Поле должно быть в нижнем регистре.',
+        'max' => 'Значение должно быть не больше :max.',
+        'maxlength' => 'Длина поля должна быть не больше :max.',
+        'mimes' => 'Файл должен иметь один из следующих типов: :allowed_types.',
+        'min' => 'Значение должно быть не меньше :min.',
+        'minlength' => 'Длина поля должна быть не меньше :min.',
+        'not_in' => 'Выбранное значение недопустимо.',
+        'numeric' => 'Поле должно быть числом.',
+        'phone' => 'Поле должно быть корректным номером телефона.',
+        'present' => 'Поле должно присутствовать.',
+        'regex' => 'Формат поля неправильный.',
+        'required' => 'Поле обязательно для заполнения.',
+        'required_if' => 'Поле обязательно для заполнения.',
+        'required_unless' => 'Поле обязательно для заполнения.',
+        'required_with' => 'Поле обязательно для заполнения.',
+        'required_with_all' => 'Поле обязательно для заполнения.',
+        'required_without' => 'Поле обязательно для заполнения.',
+        'required_without_all' => 'Поле обязательно для заполнения.',
+        'same' => 'Поля должны совпадать.',
+        'uploaded_file' => 'Поле должно быть файлом корректного типа и размера.',
+        'uppercase' => 'Поле должно быть в верхнем регистре.',
+        'url' => 'Поле должно быть корректным URL-адресом.',
+    ];
+
+    $validator = new Validator($messages);
+
+    $validator->addValidator('minlength', new Rule\Min());
+    $validator->addValidator('maxlength', new Rule\Max());
+    $validator->addValidator('phone', new class () extends \Rakit\Validation\Rule {
+        public function check($value): bool
+        {
+            if (!is_string($value)) {
+                return false;
+            }
+
+            if (\strlen($value) < 10 || \strlen($value) >= 25) {
+                return false;
+            }
+
+            if (!\preg_match('/^[0-9+\-\s()]+$/', $value)) {
+                return false;
+            }
+
+            return true;
+        }
+    });
+
+    return $validator;
 }

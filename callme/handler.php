@@ -7,17 +7,12 @@ require_once __DIR__ . '/../forma.php';
 imnotarobot();
 recaptcha();
 
-$name = getRequest('name');
-$phone = getRequest('phone');
-
-if (!$name || !$phone) {
-    fail('Правильно заполните все обязательные поля!');
-}
-
-$config['mail_message'] = loadTemplate(__DIR__ . '/email.php', [
-    'name' => $name,
-    'phone' => $phone,
+$data = validate([
+    'name' => 'required|minlength:2|maxlength:50',
+    'phone' => 'required|phone',
 ]);
+
+$config['mail_message'] = loadTemplate(__DIR__ . '/email.php', $data);
 
 mail();
 

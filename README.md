@@ -50,7 +50,7 @@
    <forma-error default="Произошла ошибка! Попробуйте отправить форму ещё раз позднее!"></forma-error>
    ```
 
-## Пример
+## Пример формы
 
 ```html
 <forma-form class="callme" imnotarobot="imnotarobot!">
@@ -60,7 +60,7 @@
         <forma-success default="Спасибо! Мы свяжемся с вами в ближайшее время!"><forma-success>
     </div>
 
-    <div class="callme-erros">
+    <div class="callme-errors">
         <forma-fail default="Произошла ошибка! Проверьте данные и попробуйте отправить форму ещё раз!"></forma-fail>
         <forma-error default="Произошла ошибка! Попробуйте отправить форму ещё раз позднее!"></forma-error>
     </div>
@@ -73,6 +73,61 @@
     </form>
 </forma-form>
 ```
+
+## Пример обработчика
+
+```php
+<?php
+
+namespace PopArtDesign\Forma;
+
+require_once __DIR__ . '/../forma.php';
+
+imnotarobot();
+recaptcha();
+
+$data = validate([
+    'name' => 'required|minlength:2|maxlength:50',
+    'phone' => 'required|phone',
+]);
+
+$config['mail_message'] = loadTemplate(__DIR__ . '/email.php', $data);
+
+mail();
+
+success();
+```
+
+## Валидация
+
+Валидация осуществляется при помощи вызова функции `validate()`, принимающей список имён полей и соответствющих им правил валидации, разделённых символом `|`:
+
+```php
+// Возвращает массив проверенных данных
+$data = validate([
+    'name' => 'required|minlength:2|maxlength:50',
+    'phone' => 'required|phone',
+    'email' => 'nullable|email',
+    'message' => 'required|maxlength:1000',
+    'file' => 'nullable|uploaded_file:0,1M',
+]);
+```
+
+Для валидации используется библиотека [rakit/validation](https://github.com/rakit/validation).
+
+Основные правила:
+
+- `required`: Поле обязательно для заполнения
+- `nullable`: Поле НЕ обязательно для заполнения
+- `phone`: Номер телефона
+- `email`: Email
+- `url`: URL
+- `minlength`: Минимальная длина строки. Пример: `minlength:5`
+- `maxlength`: Максимальная длина строки. Пример: `maxlength:1000`
+- `min`: Минимальное значение числа. Пример: `min:5`
+- `max`: Максимальное значение числа. Пример: `max:10`
+
+Все поля формы должны быть описаны в массиве правил. Для каждого поля обязательно нужно указать `required` или `nullable`.
 
 ## Конфигурация
 

@@ -14,22 +14,22 @@
     margin: 0 auto;
 }
 
-.call-me-header {
+.feedback-header {
     text-align: center;
 }
 
-.call-me {
+.feedback {
     padding: 1em;
     font-size: 16px;
     background: #eee;
     border-radius: 3px;
 }
 
-.call-me header {
+.feedback header {
     text-align: center;
 }
 
-.call-me input {
+.feedback input, .feedback textarea {
     font-size: 1.2em;
     padding: 0.5em;
     margin: 0.5em 0;
@@ -39,7 +39,7 @@
     border-radius: 0.2em;
 }
 
-.call-me button[type="submit"] {
+.feedback button[type="submit"] {
     font-size: 1.2em;
     margin: 0.5em auto;
     padding: 0.5em;
@@ -53,48 +53,46 @@
     text-align: center;
 }
 
-.call-me button[type="submit"]:hover {
+.feedback button[type="submit"]:hover {
     cursor: pointer;
     background: #5c8f48;
 }
 
-.call-me .call-me-submit-loading {
+.feedback .feedback-submit-loading {
     display: none;
 }
 
-.call-me forma-form[state="submit"] form {
+.feedback forma-form[state="submit"] form {
     opacity: 0.5;
 }
 
-.call-me forma-form[state="submit"] .call-me-submit-text {
+.feedback forma-form[state="submit"] .feedback-submit-text {
     display: none;
 }
 
-.call-me forma-form[state="submit"] .call-me-submit-loading {
+.feedback forma-form[state="submit"] .feedback-submit-loading {
     display: initial;
 }
 
-.call-me .call-me-messages {
+.feedback .feedback-messages {
     text-align: center;
 }
 
-.call-me .call-me-messages .call-me-success {
+.feedback .feedback-messages .feedback-success {
     color: green;
 }
 
-.call-me .call-me-messages .call-me-error {
+.feedback .feedback-messages .feedback-error {
     color: red;
 }
 
-.call-me footer {
+.feedback footer {
     margin: 1em 0 0 0;
     color: #a9a9a9;
     font-size: 0.8em;
     text-align: center;
 }
 </style>
-        <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
-        <script defer src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
         <script defer src="js/forma.js"></script>
         <script>
         document.addEventListener('forma:submit', (e) => {
@@ -103,65 +101,53 @@
         </script>
     </head>
     <body>
-        <div class="container call-me">
-           <h2 class="call-me-header">Заказать звонок</h2>
+        <div class="container feedback">
+           <h2 class="feedback-header">Обратная связь</h2>
            <forma-form imnotarobot="imnotarobot!">
                 <header>
-                    Оставьте заявку и с Вами свяжется наш менеджер
+                    Оставьте нам сообщение и мы с Вами свяжемся.
                 </header>
                 <!-- Контейнер для сообщений -->
-                <div class="call-me-messages">
-                    <p class="call-me-success">
-                        <forma-success default="Спасибо! Мы свяжемся с вами в ближайшее время!"><forma-success>
+                <div class="feedback-messages">
+                    <p class="feedback-success">
+                        <forma-success default="Спасибо! Мы свяжемся с Вами в ближайшее время!"><forma-success>
                     </p>
-                    <p class="call-me-error">
+                    <p class="feedback-error">
                         <forma-fail default="Произошла ошибка! Проверьте данные и попробуйте отправить форму ещё раз!"></forma-fail>
                         <forma-error default="Произошла ошибка! Попробуйте отправить форму ещё раз позднее!"></forma-error>
                     </p>
                 </div>
-                <form action="/test/handler.php" method="post">
-                    <input type="text" name="name" required placeholder="Введите имя" />
-                    <input type="tel" name="phone" required placeholder="Введите телефон" />
-                    <input type="file" name="files[]" placeholder="Файлы для прикрепления" multiple data-filepond />
+                <form action="/test/handler.php" method="post" novalidate>
+                    <label>
+                        Ваше имя *
+                        <input type="text" name="name" required placeholder="Ваше имя" />
+                    </label>
+                    <label>
+                        Ваш телефон *
+                        <input type="tel" name="phone" required placeholder="Ваш телефон" />
+                    </label>
+                    <label>
+                        Ваш email
+                        <input type="email" name="email" placeholder="Ваш email" />
+                    </label>
+                    <label>
+                        Сообщение *
+                        <textarea name="message" required placeholder="Сообщение"></textarea>
+                    </label>
+                    <label>
+                        Файл
+                        <input type="file" name="file" placeholder="Файл для прикрепления" />
+                    </label>
 
                     <button type="submit">
-                        <span class="call-me-submit-text">Оставить Заявку</span>
-                        <span class="call-me-submit-loading">Отправка...</span>
+                        <span class="feedback-submit-text">Отправить</span>
+                        <span class="feedback-submit-loading">Отправка...</span>
                     </button>
-
                 </form>
                 <footer>
                     Ваши данные не будут переданы третьим лицам
                 </footer>
             </forma-form>
         </div>
-        <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const inputs = document.querySelectorAll('input[type="file"][data-filepond]');
-
-            inputs.forEach(input => {
-                const form = input.form
-
-                const labelIdle = input.dataset.labelIdle || input.placeholder ||
-                    'Перетащите файлы сюда или <span class="filepond--label-action">Выбрать</span>'
-
-                const pond = FilePond.create(input, {
-                    storeAsFile: true,
-                    labelIdle,
-                    labelFileSizeBytes: 'байт',
-                    labelFileSizeKilobytes: 'Кб',
-                    labelFileSizeMegabytes: 'Мб',
-                    labelFileSizeGigabytes: 'Гб',
-                    credits: null
-                })
-
-                if (form) {
-                    form.addEventListener('reset', event => {
-                        pond.removeFiles()
-                    })
-                }
-            })
-        })
-        </script>
     </body>
 </html>

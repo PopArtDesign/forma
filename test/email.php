@@ -1,5 +1,5 @@
 <p>
-    Новая заявка &quot;Заказать звонок&quot;:
+    Новое сообщение:
 </p>
 <table>
     <tr>
@@ -9,6 +9,14 @@
     <tr>
         <td><strong>Телефон:</strong>&nbsp;&nbsp;</td>
         <td><?php echo \htmlspecialchars($phone); ?></td>
+    </tr>
+    <tr>
+        <td><strong>Email:</strong>&nbsp;&nbsp;</td>
+        <td><?php echo \htmlspecialchars($email) ?: 'не указан'; ?></td>
+    </tr>
+    <tr>
+        <td><strong>Сообщение:</strong>&nbsp;&nbsp;</td>
+        <td><?php echo \htmlspecialchars($message); ?></td>
     </tr>
 </table>
 

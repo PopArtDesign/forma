@@ -18,6 +18,7 @@ customElements.define('forma-form', class extends HTMLElement {
 
         this.addEventListener('forma:submit', this.addClientInfo)
         this.addEventListener('forma:submit', this.addImNotARobot)
+        this.addEventListener('forma:fail', this.showValidationErrors)
 
         this.dispatchEvent(new CustomEvent('forma:init', {
             bubbles: true,
@@ -103,7 +104,19 @@ customElements.define('forma-form', class extends HTMLElement {
         this.state = 'submit'
         this.disableForm()
 
-        this.submitForm(this.form)
+        const action = this.form.getAttribute('action')
+        const method = this.form.getAttribute('method') || 'post'
+        const data = new FormData(this.form)
+
+        this.dispatchEvent(new CustomEvent('forma:submit', {
+            bubbles: true,
+            composed: true,
+            detail: { form: this.form, data }
+        }))
+
+        fetch(action, { method, body: data })
+            .then(response => response.json())
+            .then(validateJSend)
             .then(response => {
                 switch (response.status) {
                     case 'success':
@@ -145,22 +158,6 @@ customElements.define('forma-form', class extends HTMLElement {
             })
     }
 
-    submitForm(form) {
-        const action = form.getAttribute('action')
-        const method = form.getAttribute('method') || 'post'
-        const data = new FormData(form)
-
-        this.dispatchEvent(new CustomEvent('forma:submit', {
-            bubbles: true,
-            composed: true,
-            detail: { form, data }
-        }))
-
-        return fetch(action, { method, body: data })
-            .then(response => response.json())
-            .then(validateJSend)
-    }
-
     addClientInfo = (event) => {
         event.detail.data.append('forma_client_info', JSON.stringify({
             url: window.location.href,
@@ -178,6 +175,38 @@ customElements.define('forma-form', class extends HTMLElement {
         if (value) {
             event.detail.data.append('forma_imnotarobot', value)
         }
+    }
+
+    showValidationErrors = (event) => {
+        const errors = event.detail.response.data?.errors || null
+        if (!errors) {
+            return
+        }
+
+        Array.from(this.form.elements).forEach((el) => {
+            if (el.setCustomValidity) {
+                el.setCustomValidity('')
+            }
+        })
+
+        Object.entries(errors).forEach(([field, errors]) => {
+            const message = Array.isArray(errors) ? errors[0] : errors
+            const formField = getFormField(this.form, field)
+
+            if (formField) {
+                formField.setCustomValidity(message)
+
+                formField.addEventListener('input', (event) => {
+                    event.target.setCustomValidity('')
+                }, { once: true })
+            }
+        })
+
+        requestAnimationFrame(() => {
+            if (!this.form.checkValidity()) {
+                this.form.reportValidity()
+            }
+        })
     }
 })
 
@@ -205,4 +234,59 @@ function validateJSend(response) {
     }
 
     return response
+}
+
+function getFormField(form, path) {
+    const target = path.split('.');
+    const fields = form.querySelectorAll('[name]');
+    const matches = [];
+
+    fields.forEach(field => {
+        const parts = parseFieldName(field.name);
+
+        if (parts.length !== target.length) return;
+
+        let ok = true;
+
+        for (let i = 0; i < parts.length; i++) {
+            const p = parts[i];
+            const t = target[i];
+
+            if (p === '') continue;
+
+            if (/^\d+$/.test(t)) {
+                if (p !== '' && p !== t) {
+                    ok = false;
+                    break;
+                }
+            } else {
+                if (p !== t) {
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if (ok) matches.push(field);
+    });
+
+    const last = target[target.length - 1];
+
+    if (/^\d+$/.test(last)) {
+        return matches[Number(last)] || null;
+    }
+
+    return matches[0] || null;
+}
+
+function parseFieldName(name) {
+    const parts = [];
+    const regex = /([^\[\]]+)|\[(.*?)\]/g;
+    let m;
+
+    while ((m = regex.exec(name))) {
+        parts.push(m[1] ?? m[2]);
+    }
+
+    return parts;
 }

@@ -7,22 +7,15 @@ require_once __DIR__ . '/../forma.php';
 imnotarobot();
 recaptcha();
 
-$name = getRequest('name');
-$email = getRequest('email');
-$message = getRequest('message');
-$attachments = collectAttachments([ 'files' ]);
-
-if (!$name || !$email || !$message) {
-    fail('Правильно заполните все обязательные поля!');
-}
-
-$config['mail_message'] = loadTemplate(__DIR__ . '/email.php', [
-    'name' => $name,
-    'email' => $email,
-    'message' => $message,
+$data = validate([
+    'name' => 'required|maxlength:50',
+    'email' => 'required|email',
+    'message' => 'required|maxlength:1000',
+    'file' => 'nullable|uploaded_file:0,1M',
 ]);
 
-$config['mail_attachments'] = $attachments;
+$config['mail_message'] = loadTemplate(__DIR__ . '/email.php', $data);
+$config['mail_attachments'] = collectAttachments([ 'file' ]);
 
 mail();
 

@@ -18,6 +18,7 @@ customElements.define('forma-form', class extends HTMLElement {
 
         this.addEventListener('forma:submit', this.addClientInfo)
         this.addEventListener('forma:submit', this.addImNotARobot)
+        this.addEventListener('forma:fail', this.showValidationErrors)
 
         this.dispatchEvent(new CustomEvent('forma:init', {
             bubbles: true,
@@ -178,6 +179,61 @@ customElements.define('forma-form', class extends HTMLElement {
         if (value) {
             event.detail.data.append('forma_imnotarobot', value)
         }
+    }
+
+    showValidationErrors = (event) => {
+        const violations = event.detail.response.data?.violations || null
+        if (!violations) {
+            return
+        }
+
+        Array.from(this.form.elements).forEach((el) => {
+            if (el.setCustomValidity) {
+                el.setCustomValidity('')
+            }
+        })
+
+        Object.entries(violations).forEach(([field, errors]) => {
+            const message = Array.isArray(errors) ? errors[0] : errors
+            const formField = this.getFormField(field)
+
+            if (formField) {
+                formField.setCustomValidity(message)
+
+                formField.addEventListener('input', (event) => {
+                    event.target.setCustomValidity('')
+                }, { once: true })
+            }
+        })
+
+        requestAnimationFrame(() => {
+            if (!this.form.checkValidity()) {
+                this.form.reportValidity()
+            }
+        })
+    }
+
+    getFormField(field) {
+        if (this.form[field]) {
+            return this.form[field]
+        }
+
+        // Handle nested fields: 'user.passport.serial' → 'user[passport][serial]'
+        if (field.includes('.')) {
+            const nestedField = field.split('.').reduce((carry, part, index) => {
+                if (index === 0) {
+                    return part
+                }
+
+                return carry + '[' + part + ']'
+            })
+
+            if (this.form[nestedField]) {
+                return this.form[nestedField]
+            }
+        }
+
+        return null
     }
 })
 

@@ -14,15 +14,6 @@ customElements.define('forma-form', class extends HTMLElement {
     constructor() {
         super()
 
-        this.form = this.querySelector('form')
-        if (!this.form) {
-            throw Error('Forma: <form> element not found.')
-        }
-
-        this.successMessage = this.querySelector('forma-success')
-        this.failMessage = this.querySelector('forma-fail')
-        this.errorMessage = this.querySelector('forma-error')
-
         this.state = 'initial'
 
         this.addEventListener('forma:submit', this.addClientInfo)
@@ -35,6 +26,15 @@ customElements.define('forma-form', class extends HTMLElement {
     }
 
     connectedCallback() {
+        this.form = this.querySelector('form')
+        if (!this.form) {
+            throw Error('Forma: <form> element not found.')
+        }
+
+        this.successMessage = this.querySelector('forma-success')
+        this.failMessage = this.querySelector('forma-fail')
+        this.errorMessage = this.querySelector('forma-error')
+
         this.form.addEventListener('submit', this.submitHandler)
     }
 

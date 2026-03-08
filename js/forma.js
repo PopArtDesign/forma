@@ -5,7 +5,7 @@ customElements.define('forma-form', class extends HTMLElement {
 
     set state(value) {
         if (!['initial', 'submit', 'success', 'fail', 'error'].includes(value)) {
-            throw Error('Forma: invalid state: '.value)
+            throw Error('Forma: invalid state: ' + value)
         }
 
         this.setAttribute('state', value)

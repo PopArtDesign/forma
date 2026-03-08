@@ -1,10 +1,5 @@
 js/forma.min.js: js/forma.js
-	npx esbuild \
-		--target=es2017 \
-		--bundle \
-		--minify \
-		--outfile=js/forma.min.js \
-		js/forma.js
+	bun build --outfile=js/forma.min.js --target=browser --format=iife --minify js/forma.js
 
 forma.zip:
 	git archive -o forma.zip HEAD

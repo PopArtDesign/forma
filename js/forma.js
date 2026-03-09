@@ -16,6 +16,7 @@ customElements.define('forma-form', class extends HTMLElement {
 
         this.state = 'initial'
 
+        this.addEventListener('submit', this.submitHandler)
         this.addEventListener('forma:submit', this.addClientInfo)
         this.addEventListener('forma:submit', this.addImNotARobot)
         this.addEventListener('forma:fail', this.showValidationErrors)
@@ -27,36 +28,13 @@ customElements.define('forma-form', class extends HTMLElement {
     }
 
     connectedCallback() {
-        this.form = this.querySelector('form')
-        if (!this.form) {
-            throw Error('Forma: <form> element not found.')
-        }
-
         this.successMessage = this.querySelector('forma-success')
         this.failMessage = this.querySelector('forma-fail')
         this.errorMessage = this.querySelector('forma-error')
-
-        this.form.addEventListener('submit', this.submitHandler)
-    }
-
-    disconnectedCallback() {
-        this.form.removeEventListener('submit', this.submitHandler)
     }
 
     isSubmitting() {
         return this.state === 'submit'
-    }
-
-    disableForm() {
-        this.form.inert = true
-    }
-
-    enableForm() {
-        this.form.inert = false
-    }
-
-    reset() {
-        this.form.reset()
     }
 
     showMessage(type, message) {
@@ -102,16 +80,18 @@ customElements.define('forma-form', class extends HTMLElement {
         }
 
         this.state = 'submit'
-        this.disableForm()
 
-        const action = this.form.getAttribute('action')
-        const method = this.form.getAttribute('method') || 'post'
-        const data = new FormData(this.form)
+        const form = event.target
+        form.inert = true
+
+        const action = form.getAttribute('action')
+        const method = form.getAttribute('method') || 'post'
+        const data = new FormData(form)
 
         this.dispatchEvent(new CustomEvent('forma:submit', {
             bubbles: true,
             composed: true,
-            detail: { form: this.form, data }
+            detail: { form, data }
         }))
 
         fetch(action, { method, body: data })
@@ -127,7 +107,7 @@ customElements.define('forma-form', class extends HTMLElement {
                             composed: true,
                             detail: { response }
                         }))
-                        this.reset()
+                        form.reset()
                         break;
                     case 'fail':
                         this.state = 'fail'
@@ -154,7 +134,7 @@ customElements.define('forma-form', class extends HTMLElement {
                 throw error
             })
             .finally(() => {
-                this.enableForm()
+                this.form.inert = false
             })
     }
 

@@ -147,7 +147,7 @@ describe('forma-form', () => {
             const fetchSpy = vi.fn();
             window.fetch = fetchSpy;
 
-            forma.state = 'submit';
+            forma.setAttribute('state', 'submit');
             form.dispatchEvent(new SubmitEvent('submit', { bubbles: true }));
 
             expect(fetchSpy).not.toHaveBeenCalled();

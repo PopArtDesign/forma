@@ -1,11 +1,11 @@
 customElements.define('forma-form', class extends HTMLElement {
     #initialized = false
 
-    get state() {
+    get #state() {
         return this.getAttribute('state') || 'initial'
     }
 
-    set state(value) {
+    set #state(value) {
         if (!['initial', 'submit', 'success', 'fail', 'error'].includes(value)) {
             throw Error('Forma: invalid state: ' + value)
         }
@@ -16,7 +16,7 @@ customElements.define('forma-form', class extends HTMLElement {
     constructor() {
         super()
 
-        this.state = 'initial'
+        this.#state = 'initial'
     }
 
     connectedCallback() {
@@ -51,7 +51,7 @@ customElements.define('forma-form', class extends HTMLElement {
             return
         }
 
-        this.state = 'submit'
+        this.#state = 'submit'
 
         const form = event.target
         form.inert = true
@@ -72,7 +72,7 @@ customElements.define('forma-form', class extends HTMLElement {
             .then(response => {
                 switch (response.status) {
                     case 'success':
-                        this.state = 'success'
+                        this.#state = 'success'
                         this.#showSuccessMessage(response.data?.message)
                         this.dispatchEvent(new CustomEvent('forma:success', {
                             bubbles: true,
@@ -82,7 +82,7 @@ customElements.define('forma-form', class extends HTMLElement {
                         form.reset()
                         break;
                     case 'fail':
-                        this.state = 'fail'
+                        this.#state = 'fail'
                         this.#showFailMessage(response.data?.message)
                         this.dispatchEvent(new CustomEvent('forma:fail', {
                             bubbles: true,
@@ -95,7 +95,7 @@ customElements.define('forma-form', class extends HTMLElement {
                 }
             })
             .catch(error => {
-                this.state = 'error'
+                this.#state = 'error'
                 this.#showErrorMessage()
                 this.dispatchEvent(new CustomEvent('forma:error', {
                     bubbles: true,
@@ -165,7 +165,7 @@ customElements.define('forma-form', class extends HTMLElement {
     }
 
     #isSubmitting() {
-        return this.state === 'submit'
+        return this.#state === 'submit'
     }
 
     #showSuccessMessage(message) {

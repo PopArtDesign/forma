@@ -1,4 +1,6 @@
 customElements.define('forma-form', class extends HTMLElement {
+    #initialized = false
+
     get state() {
         return this.getAttribute('state') || 'initial'
     }
@@ -15,17 +17,31 @@ customElements.define('forma-form', class extends HTMLElement {
         super()
 
         this.state = 'initial'
+    }
 
+    connectedCallback() {
         this.addEventListener('submit', this.handleSubmit)
         this.addEventListener('forma:submit', this.handleAddClientInfo)
         this.addEventListener('forma:submit', this.handleAddImNotARobot)
         this.addEventListener('forma:fail', this.handleShowValidationErrors)
         this.addEventListener('input', this.handleClearValidationErrors)
 
-        this.dispatchEvent(new CustomEvent('forma:init', {
-            bubbles: true,
-            composed: true,
-        }))
+        if (!this.#initialized) {
+            this.dispatchEvent(new CustomEvent('forma:init', {
+                bubbles: true,
+                composed: true,
+            }))
+
+            this.#initialized = true
+        }
+    }
+
+    disconnectedCallback() {
+        this.removeEventListener('submit', this.handleSubmit)
+        this.removeEventListener('forma:submit', this.handleAddClientInfo)
+        this.removeEventListener('forma:submit', this.handleAddImNotARobot)
+        this.removeEventListener('forma:fail', this.handleShowValidationErrors)
+        this.removeEventListener('input', this.handleClearValidationErrors)
     }
 
     handleSubmit = (event) => {

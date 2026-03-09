@@ -45,9 +45,21 @@ describe('forma-form', () => {
             expect(forma.getAttribute('state')).toBe('initial');
         });
 
-        it('dispatches forma:init event on construction', () => {
-            // The event is dispatched in the constructor, so we check the attribute
-            expect(forma.getAttribute('state')).toBe('initial');
+        it('dispatches forma:init event once when connected', () => {
+            document.body.innerHTML = '';
+            const initHandler = vi.fn();
+            document.body.addEventListener('forma:init', initHandler);
+
+            const element = document.createElement('forma-form');
+            document.body.appendChild(element);
+
+            expect(initHandler).toHaveBeenCalledTimes(1);
+
+            // move it, connectedCallback should not fire init again
+            document.body.appendChild(element);
+            expect(initHandler).toHaveBeenCalledTimes(1);
+
+            document.body.removeEventListener('forma:init', initHandler);
         });
     });
 

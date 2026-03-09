@@ -105,7 +105,7 @@ customElements.define('forma-form', class extends HTMLElement {
                         this.dispatchEvent(new CustomEvent('forma:success', {
                             bubbles: true,
                             composed: true,
-                            detail: { response }
+                            detail: { form, response }
                         }))
                         form.reset()
                         break;
@@ -115,7 +115,7 @@ customElements.define('forma-form', class extends HTMLElement {
                         this.dispatchEvent(new CustomEvent('forma:fail', {
                             bubbles: true,
                             composed: true,
-                            detail: { response }
+                            detail: { form, response }
                         }))
                         break;
                     case 'error':
@@ -128,13 +128,13 @@ customElements.define('forma-form', class extends HTMLElement {
                 this.dispatchEvent(new CustomEvent('forma:error', {
                     bubbles: true,
                     composed: true,
-                    detail: { error }
+                    detail: { form, error }
                 }))
 
                 throw error
             })
             .finally(() => {
-                this.form.inert = false
+                form.inert = false
             })
     }
 
@@ -150,7 +150,8 @@ customElements.define('forma-form', class extends HTMLElement {
     }
 
     handleAddImNotARobot = (event) => {
-        const value = this.getAttribute('imnotarobot') || this.form.dataset.imnotarobot
+        const form = event.detail.form
+        const value = this.getAttribute('imnotarobot') || form.dataset.imnotarobot
 
         if (value) {
             event.detail.data.append('forma_imnotarobot', value)
@@ -163,7 +164,9 @@ customElements.define('forma-form', class extends HTMLElement {
             return
         }
 
-        Array.from(this.form.elements).forEach((el) => {
+        const form = event.detail.form
+
+        Array.from(form.elements).forEach((el) => {
             if (el.setCustomValidity) {
                 el.setCustomValidity('')
             }
@@ -171,7 +174,7 @@ customElements.define('forma-form', class extends HTMLElement {
 
         Object.entries(errors).forEach(([field, errors]) => {
             const message = Array.isArray(errors) ? errors[0] : errors
-            const formField = getFormField(this.form, field)
+            const formField = getFormField(form, field)
 
             if (formField) {
                 formField.setCustomValidity(message)
@@ -183,8 +186,8 @@ customElements.define('forma-form', class extends HTMLElement {
         })
 
         requestAnimationFrame(() => {
-            if (!this.form.checkValidity()) {
-                this.form.reportValidity()
+            if (!form.checkValidity()) {
+                form.reportValidity()
             }
         })
     }

@@ -32,7 +32,13 @@ The frontend is handled by `js/forma.js`, which defines a custom HTML element `<
 
 ## Testing
 
-There is no formal testing suite (like PHPUnit) set up for this project. Testing is done manually.
+JavaScript tests are run with Bun. To execute the test suite, run:
+
+```bash
+bun test
+```
+
+For the PHP code, there is no formal testing suite (like PHPUnit) set up. Testing is done manually.
 
 The `index.php` file serves as a demonstration page. It contains a sample form that submits to `test/handler.php`. You can use this page to test the form submission functionality.
 

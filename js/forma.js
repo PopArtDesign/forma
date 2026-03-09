@@ -28,48 +28,10 @@ customElements.define('forma-form', class extends HTMLElement {
         }))
     }
 
-    isSubmitting() {
-        return this.state === 'submit'
-    }
-
-    showSuccessMessage(message) {
-        return this.showMessage('success', message)
-    }
-
-    showFailMessage(message) {
-        return this.showMessage('fail', message)
-    }
-
-    showErrorMessage(message) {
-        return this.showMessage('error', message)
-    }
-
-    showMessage(type, message) {
-        this.clearMessages()
-
-        const element = this.querySelector(`forma-${type}`)
-        if (!element) {
-            return false
-        }
-
-        message = message || element.getAttribute('default')
-        if (!message) {
-            return false
-        }
-
-        element.innerHTML = message
-        return true
-    }
-
-    clearMessages() {
-        this.querySelectorAll('forma-success, forma-fail, forma-error')
-            .forEach(el => el.innerText = '')
-    }
-
     handleSubmit = (event) => {
         event.preventDefault()
 
-        if (this.isSubmitting()) {
+        if (this.#isSubmitting()) {
             return
         }
 
@@ -95,7 +57,7 @@ customElements.define('forma-form', class extends HTMLElement {
                 switch (response.status) {
                     case 'success':
                         this.state = 'success'
-                        this.showSuccessMessage(response.data?.message)
+                        this.#showSuccessMessage(response.data?.message)
                         this.dispatchEvent(new CustomEvent('forma:success', {
                             bubbles: true,
                             composed: true,
@@ -105,7 +67,7 @@ customElements.define('forma-form', class extends HTMLElement {
                         break;
                     case 'fail':
                         this.state = 'fail'
-                        this.showFailMessage(response.data?.message)
+                        this.#showFailMessage(response.data?.message)
                         this.dispatchEvent(new CustomEvent('forma:fail', {
                             bubbles: true,
                             composed: true,
@@ -118,7 +80,7 @@ customElements.define('forma-form', class extends HTMLElement {
             })
             .catch(error => {
                 this.state = 'error'
-                this.showErrorMessage()
+                this.#showErrorMessage()
                 this.dispatchEvent(new CustomEvent('forma:error', {
                     bubbles: true,
                     composed: true,
@@ -184,6 +146,44 @@ customElements.define('forma-form', class extends HTMLElement {
 
     handleClearValidationErrors = (event) => {
         event.target.setCustomValidity('')
+    }
+
+    #isSubmitting() {
+        return this.state === 'submit'
+    }
+
+    #showSuccessMessage(message) {
+        return this.#showMessage('success', message)
+    }
+
+    #showFailMessage(message) {
+        return this.#showMessage('fail', message)
+    }
+
+    #showErrorMessage(message) {
+        return this.#showMessage('error', message)
+    }
+
+    #showMessage(type, message) {
+        this.#clearMessages()
+
+        const element = this.querySelector(`forma-${type}`)
+        if (!element) {
+            return false
+        }
+
+        message = message || element.getAttribute('default')
+        if (!message) {
+            return false
+        }
+
+        element.innerHTML = message
+        return true
+    }
+
+    #clearMessages() {
+        this.querySelectorAll('forma-success, forma-fail, forma-error')
+            .forEach(el => el.innerText = '')
     }
 })
 

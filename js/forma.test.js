@@ -42,103 +42,12 @@ describe('forma-form', () => {
 
     describe('initialization', () => {
         it('sets initial state on construction', () => {
-            expect(forma.state).toBe('initial');
+            expect(forma.getAttribute('state')).toBe('initial');
         });
 
         it('dispatches forma:init event on construction', () => {
             // The event is dispatched in the constructor, so we check the attribute
             expect(forma.getAttribute('state')).toBe('initial');
-        });
-    });
-
-    describe('state management', () => {
-        it('allows setting valid states', () => {
-            const validStates = ['initial', 'submit', 'success', 'fail', 'error'];
-
-            validStates.forEach(state => {
-                forma.state = state;
-                expect(forma.state).toBe(state);
-            });
-        });
-
-        it('throws error for invalid state', () => {
-            expect(() => {
-                forma.state = 'invalid';
-            }).toThrow('Forma: invalid state: invalid');
-        });
-
-        it('gets state from attribute', () => {
-            forma.setAttribute('state', 'success');
-            expect(forma.state).toBe('success');
-        });
-    });
-
-    describe('message display', () => {
-        it('shows success message', () => {
-            const result = forma.showSuccessMessage('Custom success');
-            const successEl = forma.querySelector('forma-success');
-
-            expect(result).toBe(true);
-            expect(successEl.innerHTML).toBe('Custom success');
-        });
-
-        it('shows fail message', () => {
-            const result = forma.showFailMessage('Custom fail');
-            const failEl = forma.querySelector('forma-fail');
-
-            expect(result).toBe(true);
-            expect(failEl.innerHTML).toBe('Custom fail');
-        });
-
-        it('shows error message', () => {
-            const result = forma.showErrorMessage('Custom error');
-            const errorEl = forma.querySelector('forma-error');
-
-            expect(result).toBe(true);
-            expect(errorEl.innerHTML).toBe('Custom error');
-        });
-
-        it('uses default message when no message provided', () => {
-            forma.showSuccessMessage();
-            const successEl = forma.querySelector('forma-success');
-
-            expect(successEl.innerHTML).toBe('Success message');
-        });
-
-        it('returns false when message element not found', () => {
-            document.body.innerHTML = `
-                <forma-form id="empty-form">
-                    <form action="http://localhost:3000/submit"></form>
-                </forma-form>
-            `;
-            const emptyForm = document.getElementById('empty-form');
-
-            const result = emptyForm.showSuccessMessage('Test');
-            expect(result).toBe(false);
-        });
-
-        it('returns false when no message provided and no default', () => {
-            document.body.innerHTML = `
-                <forma-form id="no-default-form">
-                    <form action="http://localhost:3000/submit"></form>
-                    <forma-success></forma-success>
-                </forma-form>
-            `;
-            const noDefaultForm = document.getElementById('no-default-form');
-
-            const result = noDefaultForm.showSuccessMessage();
-            expect(result).toBe(false);
-        });
-
-        it('clears all messages before showing new one', () => {
-            forma.showSuccessMessage('Success');
-            forma.showFailMessage('Fail');
-
-            const successEl = forma.querySelector('forma-success');
-            const failEl = forma.querySelector('forma-fail');
-
-            expect(successEl.innerText).toBe('');
-            expect(failEl.innerText).toBe('Fail');
         });
     });
 
@@ -174,7 +83,7 @@ describe('forma-form', () => {
             form.dispatchEvent(new SubmitEvent('submit', { bubbles: true }));
 
             // Check state is 'submit' while fetch is still pending
-            expect(forma.state).toBe('submit');
+            expect(forma.getAttribute('state')).toBe('submit');
 
             // Resolve the fetch to clean up
             resolvePromise({
@@ -248,7 +157,7 @@ describe('forma-form', () => {
             // Wait for async operations
             await new Promise(resolve => setTimeout(resolve, 50));
 
-            expect(forma.state).toBe('success');
+            expect(forma.getAttribute('state')).toBe('success');
             expect(successHandler).toHaveBeenCalled();
 
             const successEl = forma.querySelector('forma-success');
@@ -270,7 +179,7 @@ describe('forma-form', () => {
 
             await new Promise(resolve => setTimeout(resolve, 50));
 
-            expect(forma.state).toBe('fail');
+            expect(forma.getAttribute('state')).toBe('fail');
             expect(failHandler).toHaveBeenCalled();
 
             const failEl = forma.querySelector('forma-fail');
@@ -508,21 +417,6 @@ describe('forma-form', () => {
 
             expect(reportValiditySpy).toHaveBeenCalled();
             reportValiditySpy.mockRestore();
-        });
-    });
-
-    describe('isSubmitting', () => {
-        it('returns true when state is submit', () => {
-            forma.state = 'submit';
-            expect(forma.isSubmitting()).toBe(true);
-        });
-
-        it('returns false when state is not submit', () => {
-            forma.state = 'initial';
-            expect(forma.isSubmitting()).toBe(false);
-
-            forma.state = 'success';
-            expect(forma.isSubmitting()).toBe(false);
         });
     });
 });

@@ -16,10 +16,10 @@ customElements.define('forma-form', class extends HTMLElement {
 
         this.state = 'initial'
 
-        this.addEventListener('submit', this.submitHandler)
-        this.addEventListener('forma:submit', this.addClientInfo)
-        this.addEventListener('forma:submit', this.addImNotARobot)
-        this.addEventListener('forma:fail', this.showValidationErrors)
+        this.addEventListener('submit', this.handleSubmit)
+        this.addEventListener('forma:submit', this.handleAddClientInfo)
+        this.addEventListener('forma:submit', this.handleAddImNotARobot)
+        this.addEventListener('forma:fail', this.handleShowValidationErrors)
 
         this.dispatchEvent(new CustomEvent('forma:init', {
             bubbles: true,
@@ -72,7 +72,7 @@ customElements.define('forma-form', class extends HTMLElement {
         this.errorMessage.innerText = ''
     }
 
-    submitHandler = (event) => {
+    handleSubmit = (event) => {
         event.preventDefault()
 
         if (this.isSubmitting()) {
@@ -138,7 +138,7 @@ customElements.define('forma-form', class extends HTMLElement {
             })
     }
 
-    addClientInfo = (event) => {
+    handleAddClientInfo = (event) => {
         event.detail.data.append('forma_client_info', JSON.stringify({
             url: window.location.href,
             title: document.title,
@@ -149,7 +149,7 @@ customElements.define('forma-form', class extends HTMLElement {
         }))
     }
 
-    addImNotARobot = (event) => {
+    handleAddImNotARobot = (event) => {
         const value = this.getAttribute('imnotarobot') || this.form.dataset.imnotarobot
 
         if (value) {
@@ -157,7 +157,7 @@ customElements.define('forma-form', class extends HTMLElement {
         }
     }
 
-    showValidationErrors = (event) => {
+    handleShowValidationErrors = (event) => {
         const errors = event.detail.response.data?.errors || null
         if (!errors) {
             return

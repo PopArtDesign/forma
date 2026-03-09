@@ -20,6 +20,7 @@ customElements.define('forma-form', class extends HTMLElement {
         this.addEventListener('forma:submit', this.handleAddClientInfo)
         this.addEventListener('forma:submit', this.handleAddImNotARobot)
         this.addEventListener('forma:fail', this.handleShowValidationErrors)
+        this.addEventListener('input', this.handleClearValidationErrors)
 
         this.dispatchEvent(new CustomEvent('forma:init', {
             bubbles: true,
@@ -171,10 +172,6 @@ customElements.define('forma-form', class extends HTMLElement {
 
             if (formField) {
                 formField.setCustomValidity(message)
-
-                formField.addEventListener('input', (event) => {
-                    event.target.setCustomValidity('')
-                }, { once: true })
             }
         })
 
@@ -183,6 +180,10 @@ customElements.define('forma-form', class extends HTMLElement {
                 form.reportValidity()
             }
         })
+    }
+
+    handleClearValidationErrors = (event) => {
+        event.target.setCustomValidity('')
     }
 })
 

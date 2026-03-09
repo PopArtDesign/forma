@@ -27,31 +27,8 @@ customElements.define('forma-form', class extends HTMLElement {
         }))
     }
 
-    connectedCallback() {
-        this.successMessage = this.querySelector('forma-success')
-        this.failMessage = this.querySelector('forma-fail')
-        this.errorMessage = this.querySelector('forma-error')
-    }
-
     isSubmitting() {
         return this.state === 'submit'
-    }
-
-    showMessage(type, message) {
-        this.clearMessages()
-
-        const element = this[`${type}Message`]
-        if (!element) {
-            return false
-        }
-
-        message = message || element.getAttribute('default')
-        if (!message) {
-            return false
-        }
-
-        element.innerHTML = message
-        return true
     }
 
     showSuccessMessage(message) {
@@ -66,10 +43,26 @@ customElements.define('forma-form', class extends HTMLElement {
         return this.showMessage('error', message)
     }
 
+    showMessage(type, message) {
+        this.clearMessages()
+
+        const element = this.querySelector(`forma-${type}`)
+        if (!element) {
+            return false
+        }
+
+        message = message || element.getAttribute('default')
+        if (!message) {
+            return false
+        }
+
+        element.innerHTML = message
+        return true
+    }
+
     clearMessages() {
-        this.successMessage.innerText = ''
-        this.failMessage.innerText = ''
-        this.errorMessage.innerText = ''
+        this.querySelectorAll('forma-success, forma-fail, forma-error')
+            .forEach(el => el.innerText = '')
     }
 
     handleSubmit = (event) => {

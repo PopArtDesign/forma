@@ -19,6 +19,9 @@ customElements.define('forma-form', class extends HTMLElement {
         this.addEventListener('submit', this.handleSubmit)
         this.addEventListener('forma:submit', this.handleAddClientInfo)
         this.addEventListener('forma:submit', this.handleAddImNotARobot)
+        this.addEventListener('forma:success', this.handleShowMessage)
+        this.addEventListener('forma:fail', this.handleShowMessage)
+        this.addEventListener('forma:error', this.handleShowMessage)
         this.addEventListener('forma:fail', this.handleShowValidationErrors)
         this.addEventListener('input', this.handleClearValidationErrors)
     }
@@ -52,7 +55,6 @@ customElements.define('forma-form', class extends HTMLElement {
                 switch (response.status) {
                     case 'success':
                         this.#state = 'success'
-                        this.#showSuccessMessage(response.data?.message)
                         this.dispatchEvent(new CustomEvent('forma:success', {
                             bubbles: true,
                             composed: true,
@@ -62,7 +64,6 @@ customElements.define('forma-form', class extends HTMLElement {
                         break;
                     case 'fail':
                         this.#state = 'fail'
-                        this.#showFailMessage(response.data?.message)
                         this.dispatchEvent(new CustomEvent('forma:fail', {
                             bubbles: true,
                             composed: true,
@@ -75,7 +76,6 @@ customElements.define('forma-form', class extends HTMLElement {
             })
             .catch(error => {
                 this.#state = 'error'
-                this.#showErrorMessage()
                 this.dispatchEvent(new CustomEvent('forma:error', {
                     bubbles: true,
                     composed: true,
@@ -143,20 +143,14 @@ customElements.define('forma-form', class extends HTMLElement {
         event.target.setCustomValidity('')
     }
 
+    handleShowMessage = (event) => {
+        const type = event.type.split(':')[1]
+        const message = event.detail.response?.data?.message
+        this.#showMessage(type, message)
+    }
+
     #isSubmitting() {
         return this.#state === 'submit'
-    }
-
-    #showSuccessMessage(message) {
-        return this.#showMessage('success', message)
-    }
-
-    #showFailMessage(message) {
-        return this.#showMessage('fail', message)
-    }
-
-    #showErrorMessage(message) {
-        return this.#showMessage('error', message)
     }
 
     #showMessage(type, message) {

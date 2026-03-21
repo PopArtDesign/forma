@@ -1,8 +1,17 @@
 customElements.define('forma-form', class extends HTMLElement {
+    /**
+     * Returns the current state of the form.
+     * @returns {string} The form state: 'initial', 'submit', 'success', 'fail', or 'error'
+     */
     get #state() {
         return this.getAttribute('state') || 'initial'
     }
 
+    /**
+     * Sets the form state with validation.
+     * @param {string} value - The state to set ('initial', 'submit', 'success', 'fail', or 'error')
+     * @throws {Error} If the state value is invalid
+     */
     set #state(value) {
         if (!['initial', 'submit', 'success', 'fail', 'error'].includes(value)) {
             throw Error('Forma: invalid state: ' + value)
@@ -11,6 +20,9 @@ customElements.define('forma-form', class extends HTMLElement {
         this.setAttribute('state', value)
     }
 
+    /**
+     * Initializes the custom element by attaching event listeners and setting initial state.
+     */
     constructor() {
         super()
 
@@ -26,6 +38,10 @@ customElements.define('forma-form', class extends HTMLElement {
         this.addEventListener('input', this.handleClearValidationErrors)
     }
 
+    /**
+     * Handles form submission by preventing default behavior, validating state, and sending data to server.
+     * @param {Event} event - The submit event
+     */
     handleSubmit = (event) => {
         event.preventDefault()
 
@@ -89,6 +105,10 @@ customElements.define('forma-form', class extends HTMLElement {
             })
     }
 
+    /**
+     * Adds client information to the form data before submission.
+     * @param {CustomEvent} event - The forma:submit event containing form data
+     */
     handleAddClientInfo = (event) => {
         event.detail.data.append('forma_client_info', JSON.stringify({
             url: window.location.href,
@@ -100,6 +120,10 @@ customElements.define('forma-form', class extends HTMLElement {
         }))
     }
 
+    /**
+     * Adds imnotarobot token to the form data if configured.
+     * @param {CustomEvent} event - The forma:submit event containing form data
+     */
     handleAddImNotARobot = (event) => {
         const form = event.detail.form
         const value = this.getAttribute('imnotarobot') || form.dataset.imnotarobot
@@ -109,6 +133,10 @@ customElements.define('forma-form', class extends HTMLElement {
         }
     }
 
+    /**
+     * Displays validation error messages for form fields with errors.
+     * @param {CustomEvent} event - The forma:fail event containing error details
+     */
     handleShowValidationErrors = (event) => {
         const errors = event.detail.response.data?.errors || null
         if (!errors) {
@@ -139,20 +167,40 @@ customElements.define('forma-form', class extends HTMLElement {
         })
     }
 
+    /**
+     * Clears custom validity error from the form field.
+     * @param {Event} event - The input event
+     */
     handleClearValidationErrors = (event) => {
         event.target.setCustomValidity('')
     }
 
+    /**
+     * Handles forma:success, forma:fail, and forma:error events to display appropriate messages.
+     * @param {Event} event - The event (forma:success, forma:fail, or forma:error)
+     */
     handleShowMessage = (event) => {
         const type = event.type.split(':')[1]
         const message = event.detail.response?.data?.message
         this.#showMessage(type, message)
     }
 
+    /**
+     * Checks if the form is currently in the submit state.
+     * @returns {boolean} True if the form is submitting
+     * @private
+     */
     #isSubmitting() {
         return this.#state === 'submit'
     }
 
+    /**
+     * Shows a message in the specified element type.
+     * @param {string} type - The message type ('success', 'fail', or 'error')
+     * @param {string} message - The message to display
+     * @returns {boolean} True if message was displayed, false otherwise
+     * @private
+     */
     #showMessage(type, message) {
         this.#clearMessages()
 
@@ -170,12 +218,22 @@ customElements.define('forma-form', class extends HTMLElement {
         return true
     }
 
+    /**
+     * Clears all message elements (success, fail, error).
+     * @private
+     */
     #clearMessages() {
         this.querySelectorAll('forma-success, forma-fail, forma-error')
             .forEach(el => el.innerText = '')
     }
 })
 
+/**
+ * Validates JSend response format.
+ * @param {Object} response - The JSend response object
+ * @returns {Object} The validated response object
+ * @throws {Error} If the response format is invalid
+ */
 function validateJSend(response) {
     const status = response.status
 
@@ -202,6 +260,14 @@ function validateJSend(response) {
     return response
 }
 
+/**
+ * Finds a form field by its name path.
+ * Supports nested field names using dot notation (e.g., 'address.city').
+ * Also supports array indices (e.g., 'items[0]').
+ * @param {HTMLFormElement} form - The form element
+ * @param {string} path - The field name path
+ * @returns {HTMLElement|null} The matching field element, or null if not found
+ */
 function getFormField(form, path) {
     const target = path.split('.');
     const fields = form.querySelectorAll('[name]');

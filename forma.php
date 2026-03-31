@@ -459,7 +459,7 @@ function clientInfo()
     $data = getClientInfo();
 
     echo '<table><tbody>';
-    $tr = '<tr><td><strong>%s:<strong>&nbsp;&nbsp</td><td>%s</td></tr>';
+    $tr = '<tr><td><strong>%s:<strong>&nbsp;&nbsp;</td><td>%s</td></tr>';
     printf($tr, 'IP-адрес', $data['ip']);
     printf($tr, 'URL', \htmlspecialchars($data['url'] ?? 'нет'));
     printf($tr, 'Заголовок', \htmlspecialchars($data['title'] ?? 'нет'));
